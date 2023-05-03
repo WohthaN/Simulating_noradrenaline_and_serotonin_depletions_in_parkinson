@@ -1,0 +1,55 @@
+digraph G {
+    #compound=true;
+    overlap=false;
+    splines=true;
+    layout=neato;
+    #layout=fdp;
+    #K=2;
+    #layout=patchwork;
+
+  {
+    node [shape=box, style=rounded ];
+    GP [fixedsize=true];
+    StrD1 [fixedsize=shape];
+    StrD2 [fixedsize=shape];
+    SNc [fixedsize=shape];
+    DRN [fixedsize=shape];
+    LC [fixedsize=shape];
+  }
+#  {
+#      node [shape=circle,fixedsize=true,width=0.5];
+#      NE [color=blue];
+#      DA [color=red];
+#      SHT [label="5-HT", color=orange];
+#  }
+
+
+
+
+  {
+  edge [arrowsize=0.5];
+
+
+  LC -> SNc [arrowhead=tee, color=blue];
+  LC -> DRN [color=blue];
+
+
+  StrD1 -> GP [arrowhead=dot, color=black];
+  StrD2 -> GP [arrowhead=dot,  color=black];
+
+  SNc -> StrD2 [arrowhead=dot,  color=red];
+  SNc -> StrD1 [arrowhead=normal, color=red];
+  SNc -> DRN [arrowhead=dot,  color=red];
+  SNc -> LC [arrowhead=normal,  color=red];
+
+  
+  DRN -> SNc [arrowhead=dot,  color=orange];
+  DRN -> LC [arrowhead=dot,  color=orange];
+  DRN -> StrD1 [arrowhead=normal, color=orange];
+  DRN -> StrD2 [arrowhead=normal, color=orange];
+  DRN -> GP [arrowhead=normal,  color=orange];
+
+
+ }
+
+}

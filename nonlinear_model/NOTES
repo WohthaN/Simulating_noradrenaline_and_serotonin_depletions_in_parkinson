@@ -1,0 +1,1 @@
+If high kernel time: OPENBLAS_NUM_THREADS=1 use

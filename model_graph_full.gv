@@ -1,0 +1,87 @@
+digraph G {
+    compound=false;
+    overlap=false;
+    #splines=true;
+    #layout=neato;
+    #layout=sfdp;
+    layout=dot;
+    #K=2;
+    #layout=patchwork;
+
+  {
+    node [shape=box, style=rounded ];
+    GP [fixedsize=true];
+    StrD1 [fixedsize=shape];
+    StrD2 [fixedsize=shape];
+    SNc [fixedsize=shape];
+    DRN [fixedsize=shape];
+    LC [fixedsize=shape];
+  }
+  {
+      node [shape=circle,fixedsize=true,width=0.5];
+      NE [color=blue];
+      DA [color=red];
+      SHT [label="5-HT", color=orange];
+  }
+  {
+      node [shape=hexagon,fixedsize=true,width=1];
+      OHDA [label="6OHDA", color=darkorchid1];
+      pCPA [color=darkorchid1];
+      DSP4 [label="DSP-4", color=darkorchid1];
+  }
+  {
+    node [shape=egg,fixedsize=true,width=1.2, color=grey];
+    EXT_GP;
+    EXT_StrD1;
+    EXT_StrD2;
+    EXT_SNc;
+    EXT_DRN;
+    EXT_LC;
+  }
+
+
+
+
+  {
+  edge [arrowsize=1, minlen=2];
+
+  LC -> NE [color=blue];
+  NE -> SNc [color=blue, arrowhead=tee];
+  NE -> DRN [color=blue];
+
+
+  StrD1 -> GP [arrowhead=dot, color=black];
+  StrD2 -> GP [arrowhead=dot,  color=black];
+
+  SNc -> DA [color=red];
+  DA -> StrD2 [arrowhead=dot,  color=red];
+  DA -> StrD1 [arrowhead=normal, color=red];
+  DA -> DRN [arrowhead=dot,  color=red];
+  DA -> LC [arrowhead=normal,  color=red];
+
+  DRN -> SHT [color=orange];
+  SHT -> SNc [arrowhead=dot,  color=orange];
+  SHT -> LC [arrowhead=dot,  color=orange];
+  SHT -> StrD1 [arrowhead=normal, color=orange];
+  SHT -> StrD2 [arrowhead=normal, color=orange];
+  SHT -> GP [arrowhead=normal,  color=orange];
+ }
+ {
+  edge [arrowsize=1, len=0.1];
+  OHDA -> SNc [arrowhead=box, color=darkorchid1];
+  pCPA -> DRN [arrowhead=box, color=darkorchid1];
+  DSP4 -> LC [arrowhead=box, color=darkorchid1];
+ }
+
+ {
+    edge [arrowsize=1, len=0.1, color=grey];
+    EXT_GP -> GP;
+    EXT_StrD1 -> StrD1;
+    EXT_StrD2 -> StrD2;
+    EXT_SNc -> SNc;
+    EXT_DRN -> DRN;
+    EXT_LC -> LC;
+ }
+
+
+}
