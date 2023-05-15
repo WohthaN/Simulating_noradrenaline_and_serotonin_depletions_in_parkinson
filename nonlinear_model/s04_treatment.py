@@ -9,11 +9,11 @@ PLOT_LINTHRESH = False  # 10 ** -4
 BOXPLOT_LINTHRESH = 1e-3
 
 BL = {'lesion_SHAM'        : '+SHAM',
-      'lesion_LLDA'      : '+LDA',
-      'lesion_LL5HT'       : '+L5HT',
-      'lesion_LLNE'       : '+LNE',
-      'lesion_LLDA_LL5HT': '+LDA+L5HT',
-      'lesion_LLDA_LLNE': '+LDA+LNE'}
+      'lesion_LDA'      : '+LDA',
+      'lesion_L5HT'       : '+L5HT',
+      'lesion_LNE'       : '+LNE',
+      'lesion_LDA_L5HT': '+LDA+L5HT',
+      'lesion_LDA_LNE': '+LDA+LNE'}
 
 POPULATION_BASE_PATH___CURE_DRN = os.path.join(POPULATION_BASE_PATH, 'CURE_DRN')
 POPULATION_BASE_PATH___CURE_LC = os.path.join(POPULATION_BASE_PATH, 'CURE_LC')
@@ -42,7 +42,7 @@ def main(fit=True, plot=False):
         individuals = [Healthy_combined_fit.load(POPULATION_BASE_PATH + '%s' % f) for f in files]
         reject_threshold = 1 - 2e-8
         individuals = [ind for ind in individuals if ind['fitness_history'][-1][1] > reject_threshold]
-        individuals_LDA = [ind._impose_target(ind.lesion_LLDA()) for ind in individuals]
+        individuals_LDA = [ind._impose_target(ind.lesion_LDA()) for ind in individuals]
 
         individuals_cure_DRN = list()
         individuals_cure_LC = list()
@@ -105,7 +105,7 @@ def main(fit=True, plot=False):
     individuals = [Healthy_combined_fit.load(POPULATION_BASE_PATH + '%s' % f) for f in files]
     reject_threshold = 1 - 2e-8
     individuals = [ind for ind in individuals if ind['fitness_history'][-1][1] > reject_threshold]
-    individuals_LDA = [ind._impose_target(ind.lesion_LLDA()) for ind in individuals]
+    individuals_LDA = [ind._impose_target(ind.lesion_LDA()) for ind in individuals]
 
     files = sorted(filter(lambda x: x.startswith('S_'), os.listdir(POPULATION_BASE_PATH___CURE_DRN + '')))
     individuals_cure_DRN = [Cure_DRN.load(POPULATION_BASE_PATH___CURE_DRN + '/%s' % f) for f in files]
@@ -261,7 +261,7 @@ def main(fit=True, plot=False):
                            dpi=FIG_DPI,
                            bbox_inches='tight')
 
-        base_lesion = 'lesion_LLDA'
+        base_lesion = 'lesion_LDA'
         kind = ['SHAM', BL[base_lesion], '+EXT_DRN', '+EXT_LC', '+EXT_DRN+EXT_LC']
         for fitted_individual, pop in enumerate(populations):
             (boxplot, plot) = plot_population(pop[0], pop, None, t0, T, linthresh=PLOT_LINTHRESH, plot_target=False)
@@ -293,17 +293,17 @@ def main(fit=True, plot=False):
         # CURABLE VS UNCURABLE
         stats_individuals_cure_combined = list()
         stats_individuals = list()
-        stats_individuals_LLDA = list()
+        stats_individuals_LDA = list()
 
         for i in individuals:
             sham = i.lesion_SHAM()
             lLDA = Healthy_combined_fit()
-            lLDA.update(i.lesion_LLDA().copy())
+            lLDA.update(i.lesion_LDA().copy())
             lLDA = lLDA.lesion_SHAM()
             sham['fitness_history'] = i['fitness_history']
             lLDA['fitness_history'] = i['fitness_history']
             stats_individuals.append(sham)
-            stats_individuals_LLDA.append(lLDA)
+            stats_individuals_LDA.append(lLDA)
 
         for i in individuals_cure_combined:
             cured = i.cure_DRN_LC().lesion_SHAM()
@@ -318,9 +318,9 @@ def main(fit=True, plot=False):
                      -np.log10(1 - i['fitness_history'][-1][1]) < cured_threshold]
 
         figure = boxplot_population_parameters(stats_individuals, linthresh=BOXPLOT_LINTHRESH, color='black')
-        figure = boxplot_population_parameters(stats_individuals_LLDA, linthresh=BOXPLOT_LINTHRESH, color='orange',
+        figure = boxplot_population_parameters(stats_individuals_LDA, linthresh=BOXPLOT_LINTHRESH, color='orange',
                                                figure=figure, alt_title='SHAM vs LDA (%s - %s)' % (
-                len(stats_individuals), len(stats_individuals_LLDA)))
+                len(stats_individuals), len(stats_individuals_LDA)))
         figure.savefig(os.path.join(POPULATION_BASE_PATH,
                                     'cure_population_parameters_SHAM_vs_LDA.png'),
                        dpi=FIG_DPI,
@@ -336,11 +336,11 @@ def main(fit=True, plot=False):
                        dpi=FIG_DPI,
                        bbox_inches='tight')
 
-        figure = boxplot_population_parameters(stats_individuals_LLDA, linthresh=BOXPLOT_LINTHRESH, color='black')
+        figure = boxplot_population_parameters(stats_individuals_LDA, linthresh=BOXPLOT_LINTHRESH, color='black')
         figure = boxplot_population_parameters(stats_individuals_cure_combined, linthresh=BOXPLOT_LINTHRESH,
                                                color='orange',
                                                figure=figure, alt_title='LDA vs TREATED (%s - %s)' % (
-                len(stats_individuals_LLDA), len(stats_individuals_cure_combined)))
+                len(stats_individuals_LDA), len(stats_individuals_cure_combined)))
         figure.savefig(os.path.join(POPULATION_BASE_PATH,
                                     'cure_population_parameters_LDA_vs_TREATED.png'),
                        dpi=FIG_DPI,
@@ -355,19 +355,19 @@ def main(fit=True, plot=False):
                        dpi=FIG_DPI,
                        bbox_inches='tight')
 
-        figure = boxplot_population_parameters(stats_individuals_LLDA, linthresh=BOXPLOT_LINTHRESH, color='black')
+        figure = boxplot_population_parameters(stats_individuals_LDA, linthresh=BOXPLOT_LINTHRESH, color='black')
         figure = boxplot_population_parameters(cured, linthresh=BOXPLOT_LINTHRESH, color='orange',
                                                figure=figure, alt_title='LDA vs Cured (%s - %s)' % (
-                len(stats_individuals_LLDA), len(cured)))
+                len(stats_individuals_LDA), len(cured)))
         figure.savefig(os.path.join(POPULATION_BASE_PATH,
                                     'cure_population_parameters_LDA_vs_CURED.png'),
                        dpi=FIG_DPI,
                        bbox_inches='tight')
 
-        figure = boxplot_population_parameters(stats_individuals_LLDA, linthresh=BOXPLOT_LINTHRESH, color='black')
+        figure = boxplot_population_parameters(stats_individuals_LDA, linthresh=BOXPLOT_LINTHRESH, color='black')
         figure = boxplot_population_parameters(not_cured, linthresh=BOXPLOT_LINTHRESH, color='orange',
                                                figure=figure, alt_title='LDA vs Not-Cured (%s - %s)' % (
-                len(stats_individuals_LLDA), len(not_cured)))
+                len(stats_individuals_LDA), len(not_cured)))
         figure.savefig(os.path.join(POPULATION_BASE_PATH,
                                     'cure_population_parameters_LDA_vs_NotCured.png'),
                        dpi=FIG_DPI,

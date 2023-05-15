@@ -38,7 +38,7 @@ def main(fit=True, plot=False):
     reject_threshold = 1 - 2e-8
     individuals = [ind for ind in individuals if ind['fitness_history'][-1][1] > reject_threshold]
     for i in individuals:
-        i['parameters'].update(i.lesion_LLDA()['parameters'])
+        i['parameters'].update(i.lesion_LDA()['parameters'])
     individuals = [i.lesion_SHAM() for i in individuals]
 
     t0 = 0

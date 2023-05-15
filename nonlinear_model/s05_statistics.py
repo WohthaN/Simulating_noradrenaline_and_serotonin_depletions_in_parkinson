@@ -40,7 +40,7 @@ def main(fit=True, plot=False):
         individuals = [Healthy_combined_fit.load(POPULATION_BASE_PATH + '%s' % f) for f in files]
         reject_threshold = 1 - 2e-8
         individuals = [ind for ind in individuals if ind['fitness_history'][-1][1] > reject_threshold]
-        individuals_LDA = [ind._impose_target(ind.lesion_LLDA()) for ind in individuals]
+        individuals_LDA = [ind._impose_target(ind.lesion_LDA()) for ind in individuals]
 
         files = sorted(filter(lambda x: x.startswith('S_'), os.listdir(POPULATION_BASE_PATH___CURE_DRN + '')))
         individuals_cure_DRN = [Cure_DRN.load(POPULATION_BASE_PATH___CURE_DRN + '/%s' % f) for f in files]
@@ -66,19 +66,19 @@ def main(fit=True, plot=False):
 
         populations = list()
 
-        lesions_list = ['lesion_SHAM', 'lesion_LLDA', 'lesion_LL5HT', 'lesion_LLNE',
-                        'lesion_LLDA_LL5HT',
-                        'lesion_LLDA_LLNE']
+        lesions_list = ['lesion_SHAM', 'lesion_LDA', 'lesion_L5HT', 'lesion_LNE',
+                        'lesion_LDA_L5HT',
+                        'lesion_LDA_LNE']
         for lesion in lesions_list:
             populations.append([i.__getattribute__(lesion)() for i in individuals])
 
         populations = slice_populations(populations)
         populations_L5HT = [populations[0], populations[1], populations[2], populations[4]]
-        ll_L5HT = ['lesion_SHAM', 'lesion_LLDA', 'lesion_LL5HT',
-                   'lesion_LLDA_LL5HT',
+        ll_L5HT = ['lesion_SHAM', 'lesion_LDA', 'lesion_L5HT',
+                   'lesion_LDA_L5HT',
                    ]
-        ll_LNE = ['lesion_SHAM', 'lesion_LLDA', 'lesion_LLNE',
-                   'lesion_LLDA_LL5HT',
+        ll_LNE = ['lesion_SHAM', 'lesion_LDA', 'lesion_LNE',
+                   'lesion_LDA_L5HT',
                    ]
         populations_LNE = [populations[0], populations[1], populations[3], populations[5]]
 
@@ -110,7 +110,7 @@ def main(fit=True, plot=False):
                                          [i.cure_DRN_LC() for i in individuals_cure_combined],
                                          ])
 
-        groups = ['SHAM', BL['lesion_LLDA'], '+cure_DRN',
+        groups = ['SHAM', BL['lesion_LDA'], '+cure_DRN',
                   '+cure_LC', '+cure_DRN+cure_LC']
 
         sim_data = [Parallel(n_jobs=-1)(delayed(m.simulate)(m.target_as_y0(), t0, T) for m in p) for p in

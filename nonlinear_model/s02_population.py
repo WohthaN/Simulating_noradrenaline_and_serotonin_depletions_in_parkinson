@@ -78,11 +78,11 @@ def main(fit=True, plot=False):
         figure.savefig(os.path.join(POPULATION_BASE_PATH, 'population_targets_before_fit.png'), dpi=FIG_DPI,
                        bbox_inches='tight')
 
-        TP = [i.lesion_LLDA() for i in individuals]
+        TP = [i.lesion_LDA() for i in individuals]
         figure = boxplot_population_targets(TP, linthresh=False, color='red')
-        TP = [i.lesion_LL5HT() for i in individuals]
+        TP = [i.lesion_L5HT() for i in individuals]
         figure = boxplot_population_targets(TP, figure=figure, linthresh=False, color='orange')
-        TP = [i.lesion_LLNE() for i in individuals]
+        TP = [i.lesion_LNE() for i in individuals]
         figure = boxplot_population_targets(TP, figure=figure, linthresh=False, color='blue')
         figure = boxplot_population_targets(individuals, figure=figure, linthresh=False, color='black')
         figure.savefig(os.path.join(POPULATION_BASE_PATH, 'population_targets_before_fit_lesions.png'), dpi=FIG_DPI,
@@ -105,9 +105,9 @@ def main(fit=True, plot=False):
                        bbox_inches='tight')
 
         populations = list()
-        for kind in ['lesion_SHAM', 'lesion_LLDA', 'lesion_LL5HT', 'lesion_LLNE',
-                     'lesion_LLDA_LL5HT',
-                     'lesion_LLDA_LLNE']:
+        for kind in ['lesion_SHAM', 'lesion_LDA', 'lesion_L5HT', 'lesion_LNE',
+                     'lesion_LDA_L5HT',
+                     'lesion_LDA_LNE']:
             # Healthy
             current_individuals = [i.__getattribute__(kind)() for i in individuals]
             populations.append(current_individuals)
@@ -222,60 +222,60 @@ def main(fit=True, plot=False):
         m = individuals[5]
 
         figure = plot_model(m, m.target_as_y0(), 0, 0.1, figure=None, linthresh=False)
-        mLLDA = m.lesion_LLDA()
-        mLLDA['target'] = m['target']
-        figure = plot_model(mLLDA, m.target_as_y0(), 0.1, 0.2, figure=figure, linthresh=False)
-        figure.savefig(os.path.join(POPULATION_BASE_PATH, 'transient_example_LLDA.png'), dpi=FIG_DPI,
-                       bbox_inches='tight')
-
-        figure = plot_model(m, m.target_as_y0(), 0, 0.1, figure=None, linthresh=False)
-        mLL5HT = m.lesion_LL5HT()
-        mLL5HT['target'] = m['target']
-        figure = plot_model(mLL5HT, m.target_as_y0(), 0.1, 0.2, figure=figure, linthresh=False)
-        figure.savefig(os.path.join(POPULATION_BASE_PATH, 'transient_example_LL5HT.png'), dpi=FIG_DPI,
-                       bbox_inches='tight')
-
-        figure = plot_model(m, m.target_as_y0(), 0, 0.1, figure=None, linthresh=False)
-        mLNE = m.lesion_LLNE()
-        mLNE['target'] = m['target']
-        figure = plot_model(mLNE, m.target_as_y0(), 0.1, 0.2, figure=figure, linthresh=False)
-        figure.savefig(os.path.join(POPULATION_BASE_PATH, 'transient_example_LLNE.png'), dpi=FIG_DPI,
-                       bbox_inches='tight')
-
-        figure = plot_model(m, m.target_as_y0(), 0, 0.1, figure=None, linthresh=False)
-        mLDA = m.lesion_LLDA()
+        mLDA = m.lesion_LDA()
         mLDA['target'] = m['target']
         figure = plot_model(mLDA, m.target_as_y0(), 0.1, 0.2, figure=figure, linthresh=False)
-        y0 = m.lesion_LLDA().simulate(m.target_as_y0(), 0, 0.1)['y'].transpose()[-1]
-        mLDALLNE = m.lesion_LLDA_LLNE()
-        mLDALLNE['target'] = m['target']
-        figure = plot_model(mLDALLNE, y0, 0.2, 0.3, figure=figure, linthresh=False)
+        figure.savefig(os.path.join(POPULATION_BASE_PATH, 'transient_example_LDA.png'), dpi=FIG_DPI,
+                       bbox_inches='tight')
+
+        figure = plot_model(m, m.target_as_y0(), 0, 0.1, figure=None, linthresh=False)
+        mL5HT = m.lesion_L5HT()
+        mL5HT['target'] = m['target']
+        figure = plot_model(mL5HT, m.target_as_y0(), 0.1, 0.2, figure=figure, linthresh=False)
+        figure.savefig(os.path.join(POPULATION_BASE_PATH, 'transient_example_L5HT.png'), dpi=FIG_DPI,
+                       bbox_inches='tight')
+
+        figure = plot_model(m, m.target_as_y0(), 0, 0.1, figure=None, linthresh=False)
+        mLNE = m.lesion_LNE()
+        mLNE['target'] = m['target']
+        figure = plot_model(mLNE, m.target_as_y0(), 0.1, 0.2, figure=figure, linthresh=False)
+        figure.savefig(os.path.join(POPULATION_BASE_PATH, 'transient_example_LNE.png'), dpi=FIG_DPI,
+                       bbox_inches='tight')
+
+        figure = plot_model(m, m.target_as_y0(), 0, 0.1, figure=None, linthresh=False)
+        mLDA = m.lesion_LDA()
+        mLDA['target'] = m['target']
+        figure = plot_model(mLDA, m.target_as_y0(), 0.1, 0.2, figure=figure, linthresh=False)
+        y0 = m.lesion_LDA().simulate(m.target_as_y0(), 0, 0.1)['y'].transpose()[-1]
+        mLDALNE = m.lesion_LDA_LNE()
+        mLDALNE['target'] = m['target']
+        figure = plot_model(mLDALNE, y0, 0.2, 0.3, figure=figure, linthresh=False)
         figure.savefig(os.path.join(POPULATION_BASE_PATH, 'transient_example_LDA+LNE.png'), dpi=FIG_DPI,
                        bbox_inches='tight')
 
         figure = plot_model(m, m.target_as_y0(), 0, 0.1, figure=None, linthresh=False)
-        mLDA = m.lesion_LLDA()
+        mLDA = m.lesion_LDA()
         mLDA['target'] = m['target']
         figure = plot_model(mLDA, m.target_as_y0(), 0.1, 0.2, figure=figure, linthresh=False)
-        y0 = m.lesion_LLDA().simulate(m.target_as_y0(), 0, 0.1)['y'].transpose()[-1]
-        mLDALL5HT = m.lesion_LLDA_LL5HT()
-        mLDALL5HT['target'] = m['target']
-        figure = plot_model(mLDALL5HT, y0, 0.2, 0.3, figure=figure, linthresh=False)
-        figure.savefig(os.path.join(POPULATION_BASE_PATH, 'transient_example_LDA+LL5HT.png'), dpi=FIG_DPI,
+        y0 = m.lesion_LDA().simulate(m.target_as_y0(), 0, 0.1)['y'].transpose()[-1]
+        mLDAL5HT = m.lesion_LDA_L5HT()
+        mLDAL5HT['target'] = m['target']
+        figure = plot_model(mLDAL5HT, y0, 0.2, 0.3, figure=figure, linthresh=False)
+        figure.savefig(os.path.join(POPULATION_BASE_PATH, 'transient_example_LDA+L5HT.png'), dpi=FIG_DPI,
                        bbox_inches='tight')
 
         figure = plot_model(m, m.target_as_y0(), 0, 0.1, figure=None, linthresh=False)
-        mLL5HT = m.lesion_LLDA_LL5HT()
-        mLL5HT['target'] = m['target']
-        figure = plot_model(mLL5HT, m.target_as_y0(), 0.1, 0.2, figure=figure, linthresh=False)
-        figure.savefig(os.path.join(POPULATION_BASE_PATH, 'transient_example_direct_LDA+LL5HT.png'), dpi=FIG_DPI,
+        mL5HT = m.lesion_LDA_L5HT()
+        mL5HT['target'] = m['target']
+        figure = plot_model(mL5HT, m.target_as_y0(), 0.1, 0.2, figure=figure, linthresh=False)
+        figure.savefig(os.path.join(POPULATION_BASE_PATH, 'transient_example_direct_LDA+L5HT.png'), dpi=FIG_DPI,
                        bbox_inches='tight')
 
         figure = plot_model(m, m.target_as_y0(), 0, 0.1, figure=None, linthresh=False)
-        mLNE = m.lesion_LLDA_LLNE()
+        mLNE = m.lesion_LDA_LNE()
         mLNE['target'] = m['target']
         figure = plot_model(mLNE, m.target_as_y0(), 0.1, 0.2, figure=figure, linthresh=False)
-        figure.savefig(os.path.join(POPULATION_BASE_PATH, 'transient_example_direct_LDA+LLNE.png'), dpi=FIG_DPI,
+        figure.savefig(os.path.join(POPULATION_BASE_PATH, 'transient_example_direct_LDA+LNE.png'), dpi=FIG_DPI,
                        bbox_inches='tight')
 
         figures_dict = histplot_population_parameters(populations, title_postfix=' whole population', linthresh=False)

@@ -21,12 +21,12 @@ from plotting import *
 np.random.seed(5)
 
 # np.seterr(over='raise', divide='raise', invalid='raise', under='ignore')
-# np.seterr(all='raise')
+# np.seterr(aL='raise')
 
 PARAMETERS_SEARCH_HISTORY_FILE_PATH = '/ramtmp/PSH'
 
 nano = 1.  # 10**-9
-milli = 10 ** -3
+miLi = 10 ** -3
 
 from datetime import datetime
 
@@ -43,7 +43,7 @@ def sieve_pass_negative(x):
     return np.minimum(0, x)
 
 
-def sieve_pass_all(x):
+def sieve_pass_aL(x):
     return x
 
 
@@ -125,7 +125,7 @@ class Model(dict):
     @functools.cached_property
     def P(self):
         """
-        combined dictionary with all constants and parameters
+        combined dictionary with aL constants and parameters
         :return:
         """
         return self.parameters_and_constants
@@ -180,8 +180,8 @@ class Model(dict):
                             )
             signal.alarm(0)
         except TimeOutException:
-            # The simulation is taking too long, it must be taking too small steps.
-            # Return a fake 'null' solution.
+            # The simulation is taking too long, it must be taking too smaL steps.
+            # Return a fake 'nuL' solution.
             sim = {
                 't': np.zeros(25),
                 'y': np.zeros((len(self['equations']), 25))
@@ -195,7 +195,7 @@ class Model(dict):
     def _fitness_simulation_mse(self, y0, t0, T, limit_to_equations=None,
                                 simulation=None,
                                 ignore_before_t=None,
-                                sieve=sieve_pass_all):
+                                sieve=sieve_pass_aL):
 
         # for e in limit_to_equations:
         #     if e not in self['equations']:
@@ -227,7 +227,7 @@ class Model(dict):
 
         for k, v in self['target'].items():
             if limit_to_equations is None or (limit_to_equations is not None and k in limit_to_equations):
-                if not callable(v):
+                if not caLable(v):
                     f = lambda t: np.ones(len(t)) * v
                 else:
                     f = v
@@ -253,7 +253,7 @@ class Model(dict):
         return ((t[-1] - t0) / (T - t0))
 
     def _fitness_simulation(self, y0, t0, T, limit_to_equations=None, simulation=None, ignore_before_t=None,
-                            sieve=sieve_pass_all):
+                            sieve=sieve_pass_aL):
 
         if not simulation:
             res = self.simulate(y0, t0, T)
@@ -285,7 +285,7 @@ class Model(dict):
                 new_v = np.random.normal(loc=v, scale=scale * v)
                 if check_constraints[0] <= new_v <= check_constraints[1]:
                     return new_v
-            raise Exception("This should never really happen... (%s <= (%s, %s) <= %s)" % (
+            raise Exception("This should never reaLy happen... (%s <= (%s, %s) <= %s)" % (
                 check_constraints[0], new_v, v, check_constraints[1]))
             return v
 
@@ -341,7 +341,7 @@ class Model(dict):
         x0 = self._optimize_get_state()
 
         with tqdm.tqdm() as progressbar:
-            def callback(x):
+            def caLback(x):
                 f = 1. - error(x)
                 if fitness_history:
                     conv = (f - fitness_history[-1][1])
@@ -366,7 +366,7 @@ class Model(dict):
                                               'xatol'   : 1e-6,
                                               'fatol'   : 1e-6,
                                           },
-                                          callback=callback,
+                                          caLback=caLback,
                                           bounds=self._optimize_get_bounds(),
                                           method='Nelder-Mead'
                                           )
@@ -420,7 +420,7 @@ class Model(dict):
             plt.pause(0.00001)
 
         with tqdm.tqdm() as progressbar:
-            def callback(x, convergence=0):
+            def caLback(x, convergence=0):
                 f = 1. - self._optimize_global_error(x)
 
                 m = self.copy()
@@ -469,7 +469,7 @@ class Model(dict):
             res = scipy.optimize.differential_evolution(
                     func=self._optimize_global_error,
                     bounds=tuple(self._optimize_get_bounds_as_list()),
-                    callback=callback,
+                    caLback=caLback,
                     x0=x0,
                     maxiter=100000,
                     strategy='best1exp',
@@ -491,7 +491,7 @@ class Model(dict):
         # print('Target ', str(np.array([self['target'][k] for k in self['equations']])))
         final_fitness = best.fitness(y0, t0, T)
         print('Fitness ', final_fitness)
-        gc.collect()  # When looping optimizations, if fast, gc may not run frequently enough
+        gc.coLect()  # When looping optimizations, if fast, gc may not run frequently enough
         # print(res)
         return best, fitness_history, final_fitness
 
@@ -538,35 +538,35 @@ class Healthy(Model):
         }
 
         self['constants'] = {
-            'a_GP_GP'      : 18 * milli,
-            'a_EXT_GP'     : 100.,  # 22 / (18 * milli),
+            'a_GP_GP'      : 18 * miLi,
+            'a_EXT_GP'     : 100.,  # 22 / (18 * miLi),
             'a_StrD1_GP'   : 100.,
             'a_StrD2_GP'   : 100.,
             'a_DRN_GP'     : 100.,
 
-            'a_StrD1_StrD1': 2 * milli,
-            'a_EXT_StrD1'  : 100.,  # 8 / (2 * milli),
+            'a_StrD1_StrD1': 2 * miLi,
+            'a_EXT_StrD1'  : 100.,  # 8 / (2 * miLi),
             'a_SNc_StrD1'  : 100.,
             'a_DRN_StrD1'  : 100.,
 
-            'a_StrD2_StrD2': 2 * milli,
-            'a_EXT_StrD2'  : 100.,  # 9 / (2 * milli),
+            'a_StrD2_StrD2': 2 * miLi,
+            'a_EXT_StrD2'  : 100.,  # 9 / (2 * miLi),
             'a_SNc_StrD2'  : 100.,
             'a_DRN_StrD2'  : 100.,
 
-            'a_SNc_SNc'    : 1.5 * milli,
-            'a_EXT_SNc'    : 100.,  # 4.5 / (1.5 * milli),
+            'a_SNc_SNc'    : 1.5 * miLi,
+            'a_EXT_SNc'    : 100.,  # 4.5 / (1.5 * miLi),
             'b_LC_SNc'     : 100,
             'a_DRN_SNc'    : 100.,
             'a_LC_SNc'     : 100.,
 
-            'a_DRN_DRN'    : 3.3 * milli,
-            'a_EXT_DRN'    : 100.,  # 1.2 / (3.3 * milli),
+            'a_DRN_DRN'    : 3.3 * miLi,
+            'a_EXT_DRN'    : 100.,  # 1.2 / (3.3 * miLi),
             'a_SNc_DRN'    : 100.,
             'a_LC_DRN'     : 100.,
 
-            'a_LC_LC'      : 0.8 * milli,
-            'a_EXT_LC'     : 100.,  # 2.5 / (0.8 * milli),
+            'a_LC_LC'      : 0.8 * miLi,
+            'a_EXT_LC'     : 100.,  # 2.5 / (0.8 * miLi),
             'a_DRN_LC'     : 100.,
             'a_SNc_LC'     : 100.,
 
@@ -847,10 +847,10 @@ class Healthy(Model):
         return self._combine_split_fitnesses(self._split_fitness(y0, t0, T))
 
 
-class LLDA(Healthy):
+class LDA(Healthy):
 
     def __init__(self):
-        super(LLDA, self).__init__()
+        super(LDA, self).__init__()
 
     def apply(self):
         if 'LDA' not in self['applied_lesions']:
@@ -899,10 +899,10 @@ class LLDA(Healthy):
         return self._combine_split_fitnesses(self._split_fitness(y0, t0, T))
 
 
-class LL5HT(Healthy):
+class L5HT(Healthy):
 
     def __init__(self):
-        super(LL5HT, self).__init__()
+        super(L5HT, self).__init__()
 
     def apply(self):
         if 'L5HT' not in self['applied_lesions']:
@@ -941,10 +941,10 @@ class LL5HT(Healthy):
         return self._combine_split_fitnesses(self._split_fitness(y0, t0, T))
 
 
-class LLNE(Healthy):
+class LNE(Healthy):
 
     def __init__(self):
-        super(LLNE, self).__init__()
+        super(LNE, self).__init__()
 
     def apply(self):
         if 'LNE' not in self['applied_lesions']:
@@ -980,10 +980,10 @@ class LLNE(Healthy):
         return self._combine_split_fitnesses(self._split_fitness(y0, t0, T))
 
 
-class LLDA_LLNE(Healthy):
+class LDA_LNE(Healthy):
 
     def __init__(self):
-        super(LLDA_LLNE, self).__init__()
+        super(LDA_LNE, self).__init__()
 
     def apply(self):
         if 'LDA+LNE' not in self['applied_lesions']:
@@ -1028,10 +1028,10 @@ class LLDA_LLNE(Healthy):
         return self._combine_split_fitnesses(self._split_fitness(y0, t0, T))
 
 
-class LLDA_LL5HT(Healthy):
+class LDA_L5HT(Healthy):
 
     def __init__(self):
-        super(LLDA_LL5HT, self).__init__()
+        super(LDA_L5HT, self).__init__()
 
     def apply(self):
         if 'LDA+L5HT' not in self['applied_lesions']:
@@ -1083,7 +1083,7 @@ class Healthy_combined_fit(Healthy):
         super(Healthy_combined_fit, self).__init__()
 
     def apply(self):
-        self['parameters_constraints']['LLDA___b_LC_SNc'] = [0, self.default_max_param]
+        self['parameters_constraints']['LDA___b_LC_SNc'] = [0, self.default_max_param]
 
         self._invalidate_caches()
         self['constants'] = self.P
@@ -1121,17 +1121,17 @@ class Healthy_combined_fit(Healthy):
             'a_EXT_LC'          : self.P['a_EXT_LC'],
             'a_SNc_LC'          : self.P['a_SNc_LC'],
 
-            'LLDA___a_LC_SNc' : self.P.get('LLDA___a_LC_SNc', False) or self.P['a_LC_SNc'],
-            'LLDA___b_LC_SNc' : self.P.get('LLDA___b_LC_SNc', False) or self.P['b_LC_SNc'],
-            'LLDA___a_DRN_SNc': self.P.get('LLDA___a_DRN_SNc', False) or self.P['a_DRN_SNc'],
-            'LLDA___a_EXT_SNc': self.P.get('LLDA___a_EXT_SNc', False) or self.P['a_EXT_SNc'],
+            'LDA___a_LC_SNc' : self.P.get('LDA___a_LC_SNc', False) or self.P['a_LC_SNc'],
+            'LDA___b_LC_SNc' : self.P.get('LDA___b_LC_SNc', False) or self.P['b_LC_SNc'],
+            'LDA___a_DRN_SNc': self.P.get('LDA___a_DRN_SNc', False) or self.P['a_DRN_SNc'],
+            'LDA___a_EXT_SNc': self.P.get('LDA___a_EXT_SNc', False) or self.P['a_EXT_SNc'],
 
-            'LL5HT___a_LC_DRN'  : self.P.get('LL5HT___a_LC_DRN', False) or self.P['a_LC_DRN'],
-            'LL5HT___a_SNc_DRN' : self.P.get('LL5HT___a_SNc_DRN', False) or self.P['a_SNc_DRN'],
-            'LL5HT___a_EXT_DRN' : self.P.get('LL5HT___a_EXT_DRN', False) or self.P['a_EXT_DRN'],
+            'L5HT___a_LC_DRN'  : self.P.get('L5HT___a_LC_DRN', False) or self.P['a_LC_DRN'],
+            'L5HT___a_SNc_DRN' : self.P.get('L5HT___a_SNc_DRN', False) or self.P['a_SNc_DRN'],
+            'L5HT___a_EXT_DRN' : self.P.get('L5HT___a_EXT_DRN', False) or self.P['a_EXT_DRN'],
 
-            'LLNE___a_DRN_LC'  : self.P.get('LLNE___a_DRN_LC', False) or self.P['a_DRN_LC'],
-            'LLNE___a_EXT_LC'  : self.P.get('LLNE___a_EXT_LC', False) or self.P['a_EXT_LC'],
+            'LNE___a_DRN_LC'  : self.P.get('LNE___a_DRN_LC', False) or self.P['a_DRN_LC'],
+            'LNE___a_EXT_LC'  : self.P.get('LNE___a_EXT_LC', False) or self.P['a_EXT_LC'],
 
         }
         self['parameters_constraints']['b_LC_SNc'] = [0, self.default_max_param]
@@ -1148,79 +1148,79 @@ class Healthy_combined_fit(Healthy):
         healthy._invalidate_caches()
         return healthy
 
-    def lesion_LLDA(self):
-        lLDA = LLDA()
+    def lesion_LDA(self):
+        lLDA = LDA()
         lLDA.update(self.copy())
         lLDA.apply()
-        lLDA['parameters']['a_LC_SNc'] = self.P['LLDA___a_LC_SNc']
-        lLDA['parameters']['b_LC_SNc'] = self.P['LLDA___b_LC_SNc']
-        lLDA['parameters']['a_DRN_SNc'] = self.P['LLDA___a_DRN_SNc']
-        lLDA['parameters']['a_EXT_SNc'] = self.P['LLDA___a_EXT_SNc']
+        lLDA['parameters']['a_LC_SNc'] = self.P['LDA___a_LC_SNc']
+        lLDA['parameters']['b_LC_SNc'] = self.P['LDA___b_LC_SNc']
+        lLDA['parameters']['a_DRN_SNc'] = self.P['LDA___a_DRN_SNc']
+        lLDA['parameters']['a_EXT_SNc'] = self.P['LDA___a_EXT_SNc']
 
         lLDA._clean_constants()
         lLDA._invalidate_caches()
         return lLDA
 
-    def lesion_LL5HT(self):
-        lpcpa = LL5HT()
-        lpcpa.update(self.copy())
-        lpcpa.apply()
-        lpcpa['parameters']['a_LC_DRN'] = self.P['LL5HT___a_LC_DRN']
-        lpcpa['parameters']['a_SNc_DRN'] = self.P['LL5HT___a_SNc_DRN']
-        lpcpa['parameters']['a_EXT_DRN'] = self.P['LL5HT___a_EXT_DRN']
+    def lesion_L5HT(self):
+        l5HT = L5HT()
+        l5HT.update(self.copy())
+        l5HT.apply()
+        l5HT['parameters']['a_LC_DRN'] = self.P['L5HT___a_LC_DRN']
+        l5HT['parameters']['a_SNc_DRN'] = self.P['L5HT___a_SNc_DRN']
+        l5HT['parameters']['a_EXT_DRN'] = self.P['L5HT___a_EXT_DRN']
 
-        lpcpa._clean_constants()
-        lpcpa._invalidate_caches()
-        return lpcpa
+        l5HT._clean_constants()
+        l5HT._invalidate_caches()
+        return l5HT
 
-    def lesion_LLNE(self):
-        ldsp4 = LLNE()
-        ldsp4.update(self.copy())
-        ldsp4.apply()
-        ldsp4['parameters']['a_DRN_LC'] = self.P['LLNE___a_DRN_LC']
-        ldsp4['parameters']['a_EXT_LC'] = self.P['LLNE___a_EXT_LC']
+    def lesion_LNE(self):
+        lNE = LNE()
+        lNE.update(self.copy())
+        lNE.apply()
+        lNE['parameters']['a_DRN_LC'] = self.P['LNE___a_DRN_LC']
+        lNE['parameters']['a_EXT_LC'] = self.P['LNE___a_EXT_LC']
 
-        ldsp4._clean_constants()
-        ldsp4._invalidate_caches()
-        return ldsp4
+        lNE._clean_constants()
+        lNE._invalidate_caches()
+        return lNE
 
-    def lesion_LLDA_LL5HT(self):
-        lesioned = LLDA_LL5HT()
+    def lesion_LDA_L5HT(self):
+        lesioned = LDA_L5HT()
         lesioned.update(self.copy())
         lesioned.apply()
 
         lesioned['constants'] = lesioned.P
         lesioned['parameters'] = dict()
 
-        lesioned['constants']['a_LC_SNc'] = self.P['LLDA___a_LC_SNc']
-        lesioned['constants']['b_LC_SNc'] = self.P['LLDA___b_LC_SNc']
-        lesioned['constants']['a_DRN_SNc'] = self.P['LLDA___a_DRN_SNc']
-        lesioned['constants']['a_EXT_SNc'] = self.P['LLDA___a_EXT_SNc']
+        lesioned['constants']['a_LC_SNc'] = self.P['LDA___a_LC_SNc']
+        lesioned['constants']['b_LC_SNc'] = self.P['LDA___b_LC_SNc']
+        lesioned['constants']['a_DRN_SNc'] = self.P['LDA___a_DRN_SNc']
+        lesioned['constants']['a_EXT_SNc'] = self.P['LDA___a_EXT_SNc']
 
-        lesioned['constants']['a_LC_DRN'] = self.P['LL5HT___a_LC_DRN']
-        lesioned['constants']['a_SNc_DRN'] = self.P['LL5HT___a_SNc_DRN']
-        lesioned['constants']['a_EXT_DRN'] = self.P['LL5HT___a_EXT_DRN']
+        lesioned['constants']['a_LC_DRN'] = self.P['L5HT___a_LC_DRN']
+        lesioned['constants']['a_SNc_DRN'] = self.P['L5HT___a_SNc_DRN']
+        lesioned['constants']['a_EXT_DRN'] = self.P['L5HT___a_EXT_DRN']
 
         lesioned._clean_constants()
         lesioned._invalidate_caches()
 
         return lesioned
 
-    def lesion_LLDA_LLNE(self):
-        lesioned = LLDA_LLNE()
+    def lesion_LDA_LNE(self):
+        lesioned = LDA_LNE()
         lesioned.update(self.copy())
         lesioned.apply()
 
         lesioned['constants'] = lesioned.P
         lesioned['parameters'] = dict()
 
-        lesioned['constants']['a_LC_SNc'] = self.P['LLDA___a_LC_SNc']
-        lesioned['constants']['b_LC_SNc'] = self.P['LLDA___b_LC_SNc']
-        lesioned['constants']['a_DRN_SNc'] = self.P['LLDA___a_DRN_SNc']
-        lesioned['constants']['a_EXT_SNc'] = self.P['LLDA___a_EXT_SNc']
+        lesioned['constants']['a_LC_SNc'] = self.P['LDA___a_LC_SNc']
+        lesioned['constants']['b_LC_SNc'] = self.P['LDA___b_LC_SNc']
+        lesioned['constants']['a_DRN_SNc'] = self.P['LDA___a_DRN_SNc']
+        lesioned['constants']['a_EXT_SNc'] = self.P['LDA___a_EXT_SNc']
 
-        lesioned['constants']['a_DRN_LC'] = self.P['LLNE___a_DRN_LC']
-        lesioned['constants']['a_EXT_LC'] = self.P['LLNE___a_EXT_LC']
+        lesioned['constants']['a_DRN_LC'] = self.P['LNE___a_DRN_LC']
+        lesioned['constants']['a_EXT_LC'] = self.P['LNE___a_EXT_LC']
 
         lesioned._clean_constants()
         lesioned._invalidate_caches()
@@ -1228,39 +1228,39 @@ class Healthy_combined_fit(Healthy):
         return lesioned
 
     def _split_fitness_parameters_limits(self):
-        # Lesioned EXT must be smaller than healthy EXT
-        f_LDA = 1 / (1 + max(0, self.P['LLDA___a_EXT_SNc'] - self.P['a_EXT_SNc']))
-        f_L5HT = 1 / (1 + max(0, self.P['LL5HT___a_EXT_DRN'] - self.P['a_EXT_DRN']))
-        f_LNE = 1 / (1 + max(0, self.P['LLNE___a_EXT_LC'] - self.P['a_EXT_LC']))
+        # Lesioned EXT must be smaLer than healthy EXT
+        f_LDA = 1 / (1 + max(0, self.P['LDA___a_EXT_SNc'] - self.P['a_EXT_SNc']))
+        f_L5HT = 1 / (1 + max(0, self.P['L5HT___a_EXT_DRN'] - self.P['a_EXT_DRN']))
+        f_LNE = 1 / (1 + max(0, self.P['LNE___a_EXT_LC'] - self.P['a_EXT_LC']))
         return [f_LDA, f_L5HT, f_LNE]
 
     def fitness(self, y0, t0, T):
         healthy = self.lesion_SHAM()
-        lLDA = self.lesion_LLDA()
-        lpcpa = self.lesion_LL5HT()
-        ldsp4 = self.lesion_LLNE()
+        LDA = self.lesion_LDA()
+        l5HT = self.lesion_L5HT()
+        lNE = self.lesion_LNE()
 
-        lLDApcpa = self.lesion_LLDA_LL5HT()
-        lLDAdsp4 = self.lesion_LLDA_LLNE()
+        LDA5HT = self.lesion_LDA_L5HT()
+        LDANE = self.lesion_LDA_LNE()
 
         fits = \
             healthy._split_fitness(healthy.target_as_y0(), t0, T) + \
-            lLDA._split_fitness(healthy.target_as_y0(), t0, T) + \
-            lLDA._split_fitness(lLDA.target_as_y0(), t0, T) + \
-            lpcpa._split_fitness(healthy.target_as_y0(), t0, T) + \
-            lpcpa._split_fitness(lpcpa.target_as_y0(), t0, T) + \
-            ldsp4._split_fitness(healthy.target_as_y0(), t0, T) + \
-            ldsp4._split_fitness(ldsp4.target_as_y0(), t0, T) + \
-            lLDApcpa._split_fitness(healthy.target_as_y0(), t0, T) + \
-            lLDApcpa._split_fitness(lLDA.target_as_y0(), t0, T) + \
-            lLDAdsp4._split_fitness(healthy.target_as_y0(), t0, T) + \
-            lLDAdsp4._split_fitness(lLDA.target_as_y0(), t0, T) + \
+            LDA._split_fitness(healthy.target_as_y0(), t0, T) + \
+            LDA._split_fitness(LDA.target_as_y0(), t0, T) + \
+            l5HT._split_fitness(healthy.target_as_y0(), t0, T) + \
+            l5HT._split_fitness(l5HT.target_as_y0(), t0, T) + \
+            lNE._split_fitness(healthy.target_as_y0(), t0, T) + \
+            lNE._split_fitness(lNE.target_as_y0(), t0, T) + \
+            LDA5HT._split_fitness(healthy.target_as_y0(), t0, T) + \
+            LDA5HT._split_fitness(LDA.target_as_y0(), t0, T) + \
+            LDANE._split_fitness(healthy.target_as_y0(), t0, T) + \
+            LDANE._split_fitness(LDA.target_as_y0(), t0, T) + \
             [healthy.asymptotic_stability_score(),
-             lLDA.asymptotic_stability_score(),
-             lpcpa.asymptotic_stability_score(),
-             ldsp4.asymptotic_stability_score(),
-             lLDApcpa.asymptotic_stability_score(),
-             lLDAdsp4.asymptotic_stability_score(),
+             LDA.asymptotic_stability_score(),
+             l5HT.asymptotic_stability_score(),
+             lNE.asymptotic_stability_score(),
+             LDA5HT.asymptotic_stability_score(),
+             LDANE.asymptotic_stability_score(),
              ] + \
             self._split_fitness_parameters_limits()
 
@@ -1282,9 +1282,9 @@ class Cure(Healthy_combined_fit):
         lesioned.update(self._impose_target(super(Cure, self).lesion_SHAM()))
         return lesioned
 
-    def lesion_LLDA(self):
+    def lesion_LDA(self):
         lesioned = self.__class__()
-        lesioned.update(self._impose_target(super(Cure, self).lesion_LLDA()))
+        lesioned.update(self._impose_target(super(Cure, self).lesion_LDA()))
         return lesioned
 
     def _split_fitness(self, y0, t0, T):
