@@ -1,0 +1,18 @@
+Groups: 0:+SHAM 1:+LDA 2:+L5HT 3:+LDA+L5HT
+
+Normality tests:  Group   Statistic   Pvalue
+                   0      2.937e-01   8.634e-01
+                   1      1.510e+01   5.259e-04
+                   2      6.812e+00   3.318e-02
+                   3      2.030e+00   3.624e-01
+
+ANOVA: F=1.454e+02, p=5.516e-45, dofB=3, dofW=156
+
+Tukey's HSD Pairwise Group Comparisons (95.0% Confidence Interval)
+Comparison  Statistic   p-value     Lower  CI   Upper CI
+ (0 - 1)   -8.416e-01   1.683e-12  -1.115e+00  -5.681e-01
+ (0 - 2)    1.271e+00   8.327e-15   9.974e-01   1.544e+00
+ (0 - 3)    6.023e-01   3.193e-07   3.287e-01   8.758e-01
+ (1 - 2)    2.113e+00   8.327e-15   1.839e+00   2.386e+00
+ (1 - 3)    1.444e+00   8.327e-15   1.170e+00   1.717e+00
+ (2 - 3)   -6.687e-01   1.354e-08  -9.422e-01  -3.951e-01

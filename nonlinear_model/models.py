@@ -21,12 +21,12 @@ from plotting import *
 np.random.seed(5)
 
 # np.seterr(over='raise', divide='raise', invalid='raise', under='ignore')
-# np.seterr(all='raise')
+# np.seterr(aL='raise')
 
 PARAMETERS_SEARCH_HISTORY_FILE_PATH = '/ramtmp/PSH'
 
 nano = 1.  # 10**-9
-milli = 10 ** -3
+miLi = 10 ** -3
 
 from datetime import datetime
 
@@ -43,7 +43,7 @@ def sieve_pass_negative(x):
     return np.minimum(0, x)
 
 
-def sieve_pass_all(x):
+def sieve_pass_aL(x):
     return x
 
 
@@ -125,7 +125,7 @@ class Model(dict):
     @functools.cached_property
     def P(self):
         """
-        combined dictionary with all constants and parameters
+        combined dictionary with aL constants and parameters
         :return:
         """
         return self.parameters_and_constants
@@ -180,8 +180,8 @@ class Model(dict):
                             )
             signal.alarm(0)
         except TimeOutException:
-            # The simulation is taking too long, it must be taking too small steps.
-            # Return a fake 'null' solution.
+            # The simulation is taking too long, it must be taking too smaL steps.
+            # Return a fake 'nuL' solution.
             sim = {
                 't': np.zeros(25),
                 'y': np.zeros((len(self['equations']), 25))
@@ -195,7 +195,7 @@ class Model(dict):
     def _fitness_simulation_mse(self, y0, t0, T, limit_to_equations=None,
                                 simulation=None,
                                 ignore_before_t=None,
-                                sieve=sieve_pass_all):
+                                sieve=sieve_pass_aL):
 
         # for e in limit_to_equations:
         #     if e not in self['equations']:
@@ -227,7 +227,7 @@ class Model(dict):
 
         for k, v in self['target'].items():
             if limit_to_equations is None or (limit_to_equations is not None and k in limit_to_equations):
-                if not callable(v):
+                if not caLable(v):
                     f = lambda t: np.ones(len(t)) * v
                 else:
                     f = v
@@ -253,7 +253,7 @@ class Model(dict):
         return ((t[-1] - t0) / (T - t0))
 
     def _fitness_simulation(self, y0, t0, T, limit_to_equations=None, simulation=None, ignore_before_t=None,
-                            sieve=sieve_pass_all):
+                            sieve=sieve_pass_aL):
 
         if not simulation:
             res = self.simulate(y0, t0, T)
@@ -285,7 +285,7 @@ class Model(dict):
                 new_v = np.random.normal(loc=v, scale=scale * v)
                 if check_constraints[0] <= new_v <= check_constraints[1]:
                     return new_v
-            raise Exception("This should never really happen... (%s <= (%s, %s) <= %s)" % (
+            raise Exception("This should never reaLy happen... (%s <= (%s, %s) <= %s)" % (
                 check_constraints[0], new_v, v, check_constraints[1]))
             return v
 
@@ -341,7 +341,7 @@ class Model(dict):
         x0 = self._optimize_get_state()
 
         with tqdm.tqdm() as progressbar:
-            def callback(x):
+            def caLback(x):
                 f = 1. - error(x)
                 if fitness_history:
                     conv = (f - fitness_history[-1][1])
@@ -366,7 +366,7 @@ class Model(dict):
                                               'xatol'   : 1e-6,
                                               'fatol'   : 1e-6,
                                           },
-                                          callback=callback,
+                                          caLback=caLback,
                                           bounds=self._optimize_get_bounds(),
                                           method='Nelder-Mead'
                                           )
@@ -420,7 +420,7 @@ class Model(dict):
             plt.pause(0.00001)
 
         with tqdm.tqdm() as progressbar:
-            def callback(x, convergence=0):
+            def caLback(x, convergence=0):
                 f = 1. - self._optimize_global_error(x)
 
                 m = self.copy()
@@ -469,7 +469,7 @@ class Model(dict):
             res = scipy.optimize.differential_evolution(
                     func=self._optimize_global_error,
                     bounds=tuple(self._optimize_get_bounds_as_list()),
-                    callback=callback,
+                    caLback=caLback,
                     x0=x0,
                     maxiter=100000,
                     strategy='best1exp',
@@ -491,7 +491,7 @@ class Model(dict):
         # print('Target ', str(np.array([self['target'][k] for k in self['equations']])))
         final_fitness = best.fitness(y0, t0, T)
         print('Fitness ', final_fitness)
-        gc.collect()  # When looping optimizations, if fast, gc may not run frequently enough
+        gc.coLect()  # When looping optimizations, if fast, gc may not run frequently enough
         # print(res)
         return best, fitness_history, final_fitness
 
@@ -532,43 +532,43 @@ class Healthy(Model):
     def __init__(self):
         super(Healthy, self).__init__()
         self['name'] = 'S00'
-        self['equations'] = ['GP', 'StrD1', 'StrD2', 'SNc', 'DRN', 'LC']
+        self['equations'] = ['GP', 'StrD1', 'StrD2', 'SNcVTA', 'DRN', 'LC']
 
         self['parameters'] = {
         }
 
         self['constants'] = {
-            'a_GP_GP'      : 18 * milli,
-            'a_EXT_GP'     : 100.,  # 22 / (18 * milli),
+            'a_GP_GP'      : 18 * miLi,
+            'a_EXT_GP'     : 100.,  # 22 / (18 * miLi),
             'a_StrD1_GP'   : 100.,
             'a_StrD2_GP'   : 100.,
             'a_DRN_GP'     : 100.,
 
-            'a_StrD1_StrD1': 2 * milli,
-            'a_EXT_StrD1'  : 100.,  # 8 / (2 * milli),
-            'a_SNc_StrD1'  : 100.,
+            'a_StrD1_StrD1': 2 * miLi,
+            'a_EXT_StrD1'  : 100.,  # 8 / (2 * miLi),
+            'a_SNcVTA_StrD1'  : 100.,
             'a_DRN_StrD1'  : 100.,
 
-            'a_StrD2_StrD2': 2 * milli,
-            'a_EXT_StrD2'  : 100.,  # 9 / (2 * milli),
-            'a_SNc_StrD2'  : 100.,
+            'a_StrD2_StrD2': 2 * miLi,
+            'a_EXT_StrD2'  : 100.,  # 9 / (2 * miLi),
+            'a_SNcVTA_StrD2'  : 100.,
             'a_DRN_StrD2'  : 100.,
 
-            'a_SNc_SNc'    : 1.5 * milli,
-            'a_EXT_SNc'    : 100.,  # 4.5 / (1.5 * milli),
-            'b_LC_SNc'     : 100,
-            'a_DRN_SNc'    : 100.,
-            'a_LC_SNc'     : 100.,
+            'a_SNcVTA_SNcVTA'    : 1.5 * miLi,
+            'a_EXT_SNcVTA'    : 100.,  # 4.5 / (1.5 * miLi),
+            'b_LC_SNcVTA'     : 100,
+            'a_DRN_SNcVTA'    : 100.,
+            'a_LC_SNcVTA'     : 100.,
 
-            'a_DRN_DRN'    : 3.3 * milli,
-            'a_EXT_DRN'    : 100.,  # 1.2 / (3.3 * milli),
-            'a_SNc_DRN'    : 100.,
+            'a_DRN_DRN'    : 3.3 * miLi,
+            'a_EXT_DRN'    : 100.,  # 1.2 / (3.3 * miLi),
+            'a_SNcVTA_DRN'    : 100.,
             'a_LC_DRN'     : 100.,
 
-            'a_LC_LC'      : 0.8 * milli,
-            'a_EXT_LC'     : 100.,  # 2.5 / (0.8 * milli),
+            'a_LC_LC'      : 0.8 * miLi,
+            'a_EXT_LC'     : 100.,  # 2.5 / (0.8 * miLi),
             'a_DRN_LC'     : 100.,
-            'a_SNc_LC'     : 100.,
+            'a_SNcVTA_LC'     : 100.,
 
         }
 
@@ -581,29 +581,29 @@ class Healthy(Model):
 
             'a_StrD1_StrD1': -1,
             'a_EXT_StrD1'  : 1,
-            'a_SNc_StrD1'  : 1,
+            'a_SNcVTA_StrD1'  : 1,
             'a_DRN_StrD1'  : 1,
 
             'a_StrD2_StrD2': -1,
             'a_EXT_StrD2'  : 1,
-            'a_SNc_StrD2'  : -1,
+            'a_SNcVTA_StrD2'  : -1,
             'a_DRN_StrD2'  : 1,
 
-            'a_SNc_SNc'    : -1,
-            'a_EXT_SNc'    : 1,
-            'b_LC_SNc'     : 1,
-            'a_DRN_SNc'    : -1,
-            'a_LC_SNc'     : -1,
+            'a_SNcVTA_SNcVTA'    : -1,
+            'a_EXT_SNcVTA'    : 1,
+            'b_LC_SNcVTA'     : 1,
+            'a_DRN_SNcVTA'    : -1,
+            'a_LC_SNcVTA'     : -1,
 
             'a_DRN_DRN'    : -1,
             'a_EXT_DRN'    : 1,
-            'a_SNc_DRN'    : -1,
+            'a_SNcVTA_DRN'    : -1,
             'a_LC_DRN'     : 1,
 
             'a_LC_LC'      : -1,
             'a_EXT_LC'     : 1,
             'a_DRN_LC'     : -1,
-            'a_SNc_LC'     : 1,
+            'a_SNcVTA_LC'     : 1,
 
         }
 
@@ -615,7 +615,7 @@ class Healthy(Model):
             'GP'   : 22,  # Hz
             'StrD1': 10,  # Hz
             'StrD2': 9,  # Hz
-            'SNc'  : 4.47,  # Hz
+            'SNcVTA'  : 4.47,  # Hz
             'DRN'  : 1.41,  # Hz
             'LC'   : 2.3,  # Hz
         }
@@ -624,7 +624,7 @@ class Healthy(Model):
             'GP'   : [18, 26],  # Hz
             'StrD1': [8, 12],  # Hz
             'StrD2': [7, 11],  # Hz
-            'SNc'  : [3.5, 5.5],  # Hz
+            'SNcVTA'  : [3.5, 5.5],  # Hz
             'DRN'  : [1, 2],  # Hz
             'LC'   : [1.9, 3],  # Hz
         }
@@ -645,25 +645,25 @@ class Healthy(Model):
             'a_DRN_GP'   : self.P['a_DRN_GP'],
             'a_EXT_GP'   : self.P['a_EXT_GP'],
             #
-            'a_SNc_StrD1': self.P['a_SNc_StrD1'],
+            'a_SNcVTA_StrD1': self.P['a_SNcVTA_StrD1'],
             'a_DRN_StrD1': self.P['a_DRN_StrD1'],
             'a_EXT_StrD1': self.P['a_EXT_StrD1'],
             #
-            'a_SNc_StrD2': self.P['a_SNc_StrD2'],
+            'a_SNcVTA_StrD2': self.P['a_SNcVTA_StrD2'],
             'a_DRN_StrD2': self.P['a_DRN_StrD2'],
             'a_EXT_StrD2': self.P['a_EXT_StrD2'],
             #
-            'a_DRN_SNc'  : self.P['a_DRN_SNc'],
-            'a_LC_SNc'   : self.P['a_LC_SNc'],
-            'b_LC_SNc'   : self.P['b_LC_SNc'],
-            'a_EXT_SNc'  : self.P['a_EXT_SNc'],
+            'a_DRN_SNcVTA'  : self.P['a_DRN_SNcVTA'],
+            'a_LC_SNcVTA'   : self.P['a_LC_SNcVTA'],
+            'b_LC_SNcVTA'   : self.P['b_LC_SNcVTA'],
+            'a_EXT_SNcVTA'  : self.P['a_EXT_SNcVTA'],
             #
-            'a_SNc_DRN'  : self.P['a_SNc_DRN'],
+            'a_SNcVTA_DRN'  : self.P['a_SNcVTA_DRN'],
             'a_LC_DRN'   : self.P['a_LC_DRN'],
             'a_EXT_DRN'  : self.P['a_EXT_DRN'],
             #
             'a_DRN_LC'   : self.P['a_DRN_LC'],
-            'a_SNc_LC'   : self.P['a_SNc_LC'],
+            'a_SNcVTA_LC'   : self.P['a_SNcVTA_LC'],
             'a_EXT_LC'   : self.P['a_EXT_LC'],
         }
         self._clean_constants()
@@ -691,10 +691,10 @@ class Healthy(Model):
     def StrD1(self):
         strd1_idx = self.E['StrD1']
         drn_idx = self.E['DRN']
-        snc_idx = self.E['SNc']
+        snc_idx = self.E['SNcVTA']
         t_strd1 = self.P['a_StrD1_StrD1']
         a_drn_strd1 = self.P['a_DRN_StrD1']
-        a_snc_strd1 = self.P['a_SNc_StrD1']
+        a_snc_strd1 = self.P['a_SNcVTA_StrD1']
         a_ext_strd1 = self.P['a_EXT_StrD1']
 
         def _StrD1(t, y):
@@ -705,10 +705,10 @@ class Healthy(Model):
     def StrD2(self):
         strd2_idx = self.E['StrD2']
         drn_idx = self.E['DRN']
-        snc_idx = self.E['SNc']
+        snc_idx = self.E['SNcVTA']
         t_strd2 = self.P['a_StrD2_StrD2']
         a_drn_strd2 = self.P['a_DRN_StrD2']
-        a_snc_strd2 = self.P['a_SNc_StrD2']
+        a_snc_strd2 = self.P['a_SNcVTA_StrD2']
         a_ext_strd2 = self.P['a_EXT_StrD2']
 
         def _StrD2(t, y):
@@ -716,28 +716,28 @@ class Healthy(Model):
 
         return _StrD2
 
-    def SNc(self):
-        snc_idx = self.E['SNc']
+    def SNcVTA(self):
+        snc_idx = self.E['SNcVTA']
         drn_idx = self.E['DRN']
         lc_idx = self.E['LC']
-        t_snc = self.P['a_SNc_SNc']
-        a_drn_snc = self.P['a_DRN_SNc']
-        a_lc_snc = self.P['a_LC_SNc']
-        b_lc_snc = self.P['b_LC_SNc']
-        a_ext_snc = self.P['a_EXT_SNc']
+        t_snc = self.P['a_SNcVTA_SNcVTA']
+        a_drn_snc = self.P['a_DRN_SNcVTA']
+        a_lc_snc = self.P['a_LC_SNcVTA']
+        b_lc_snc = self.P['b_LC_SNcVTA']
+        a_ext_snc = self.P['a_EXT_SNcVTA']
 
-        def _SNc(t, y):
+        def _SNcVTA(t, y):
             return - (1. / t_snc) * y[snc_idx] \
                 - a_drn_snc * y[drn_idx] - a_lc_snc * y[lc_idx] + (b_lc_snc * y[lc_idx] ** 2) + a_ext_snc
 
-        return _SNc
+        return _SNcVTA
 
     def DRN(self):
         drn_idx = self.E['DRN']
-        snc_idx = self.E['SNc']
+        snc_idx = self.E['SNcVTA']
         lc_idx = self.E['LC']
         t_drn = self.P['a_DRN_DRN']
-        a_snc_drn = self.P['a_SNc_DRN']
+        a_snc_drn = self.P['a_SNcVTA_DRN']
         a_lc_drn = self.P['a_LC_DRN']
         a_ext_drn = self.P['a_EXT_DRN']
 
@@ -752,7 +752,7 @@ class Healthy(Model):
         snc_idx = self.E['DRN']
         t_lc = self.P['a_LC_LC']
         a_drn_lc = self.P['a_DRN_LC']
-        a_snc_lc = self.P['a_SNc_LC']
+        a_snc_lc = self.P['a_SNcVTA_LC']
         a_ext_lc = self.P['a_EXT_LC']
 
         def _LC(t, y):
@@ -847,31 +847,31 @@ class Healthy(Model):
         return self._combine_split_fitnesses(self._split_fitness(y0, t0, T))
 
 
-class L6OHDA(Healthy):
+class LDA(Healthy):
 
     def __init__(self):
-        super(L6OHDA, self).__init__()
+        super(LDA, self).__init__()
 
     def apply(self):
-        if '6OHDA' not in self['applied_lesions']:
-            self['applied_lesions'].append('6OHDA')
-            self['name'] += ' +6OHDA'
+        if 'LDA' not in self['applied_lesions']:
+            self['applied_lesions'].append('LDA')
+            self['name'] += ' +LDA'
 
             # self['target']['GP'] *= 0.90
-            self['target']['SNc'] *= 0.1
+            self['target']['SNcVTA'] *= 0.1
             self['target']['LC'] *= 0.8
 
         self._invalidate_caches()
         self['constants'] = self.P
         self['parameters'] = {
-            'b_LC_SNc' : self.P.get('b_LC_SNc', False) or 1.,
-            'a_LC_SNc' : self.P.get('a_LC_SNc', False) or 1.,
-            'a_DRN_SNc': self.P.get('a_DRN_SNc', False) or 1.,
-            'a_EXT_SNc': self.P.get('a_EXT_SNc', False) or 1.,
+            'b_LC_SNcVTA' : self.P.get('b_LC_SNcVTA', False) or 1.,
+            'a_LC_SNcVTA' : self.P.get('a_LC_SNcVTA', False) or 1.,
+            'a_DRN_SNcVTA': self.P.get('a_DRN_SNcVTA', False) or 1.,
+            'a_EXT_SNcVTA': self.P.get('a_EXT_SNcVTA', False) or 1.,
         }
-        self['parameters_constraints']['b_LC_SNc'] = [0, self.default_max_param]
-        self['parameters_constraints']['a_EXT_SNc'] = (
-            self.default_min_param, self.P.get('a_EXT_SNc', False) or self.default_max_param)
+        self['parameters_constraints']['b_LC_SNcVTA'] = [0, self.default_max_param]
+        self['parameters_constraints']['a_EXT_SNcVTA'] = (
+            self.default_min_param, self.P.get('a_EXT_SNcVTA', False) or self.default_max_param)
 
         self._clean_constants()
 
@@ -882,7 +882,7 @@ class L6OHDA(Healthy):
             self._fitness_simulation(y0, t0, T, limit_to_equations=['GP'],
                                      simulation=res,
                                      ignore_before_t=(T - t0) / 2),
-            self._fitness_simulation(y0, t0, T, limit_to_equations=['SNc'],
+            self._fitness_simulation(y0, t0, T, limit_to_equations=['SNcVTA'],
                                      simulation=res,
                                      ignore_before_t=(T - t0) / 2,
                                      sieve=sieve_pass_positive
@@ -899,15 +899,15 @@ class L6OHDA(Healthy):
         return self._combine_split_fitnesses(self._split_fitness(y0, t0, T))
 
 
-class LpCPA(Healthy):
+class L5HT(Healthy):
 
     def __init__(self):
-        super(LpCPA, self).__init__()
+        super(L5HT, self).__init__()
 
     def apply(self):
-        if 'pCPA' not in self['applied_lesions']:
-            self['applied_lesions'].append('pCPA')
-            self['name'] += ' +pCPA'
+        if 'L5HT' not in self['applied_lesions']:
+            self['applied_lesions'].append('L5HT')
+            self['name'] += ' +L5HT'
 
             self['target']['GP'] *= 0.65
             self['target']['DRN'] *= 0.3
@@ -917,7 +917,7 @@ class LpCPA(Healthy):
         self['parameters'] = {
             'a_EXT_DRN': self.P['a_EXT_DRN'],
             'a_LC_DRN' : self.P['a_LC_DRN'],
-            'a_SNc_DRN': self.P['a_SNc_DRN'],
+            'a_SNcVTA_DRN': self.P['a_SNcVTA_DRN'],
         }
         self['parameters_constraints']['a_EXT_DRN'] = (
             self.default_min_param, self.P.get('a_EXT_DRN', False) or self.default_max_param)
@@ -941,15 +941,15 @@ class LpCPA(Healthy):
         return self._combine_split_fitnesses(self._split_fitness(y0, t0, T))
 
 
-class LDSP4(Healthy):
+class LNE(Healthy):
 
     def __init__(self):
-        super(LDSP4, self).__init__()
+        super(LNE, self).__init__()
 
     def apply(self):
-        if 'DSP4' not in self['applied_lesions']:
-            self['applied_lesions'].append('DSP4')
-            self['name'] += ' +DSP4'
+        if 'LNE' not in self['applied_lesions']:
+            self['applied_lesions'].append('LNE')
+            self['name'] += ' +LNE'
 
             self['target']['LC'] *= 0.2
 
@@ -980,15 +980,15 @@ class LDSP4(Healthy):
         return self._combine_split_fitnesses(self._split_fitness(y0, t0, T))
 
 
-class L6OHDA_LDSP4(Healthy):
+class LDA_LNE(Healthy):
 
     def __init__(self):
-        super(L6OHDA_LDSP4, self).__init__()
+        super(LDA_LNE, self).__init__()
 
     def apply(self):
-        if '6OHDA+DSP4' not in self['applied_lesions']:
-            self['applied_lesions'].append('6OHDA+DSP4')
-            self['name'] += ' +6OHDA+DSP4'
+        if 'LDA+LNE' not in self['applied_lesions']:
+            self['applied_lesions'].append('LDA+LNE')
+            self['name'] += ' +LDA+LNE'
             self.original_GP = self['target']['GP']
             self.max_GP = self.original_GP
             self.min_GP = self.original_GP * 0.65
@@ -1028,15 +1028,15 @@ class L6OHDA_LDSP4(Healthy):
         return self._combine_split_fitnesses(self._split_fitness(y0, t0, T))
 
 
-class L6OHDA_LpCPA(Healthy):
+class LDA_L5HT(Healthy):
 
     def __init__(self):
-        super(L6OHDA_LpCPA, self).__init__()
+        super(LDA_L5HT, self).__init__()
 
     def apply(self):
-        if '6OHDA+pCPA' not in self['applied_lesions']:
-            self['applied_lesions'].append('6OHDA+pCPA')
-            self['name'] += ' +6OHDA+pCPA'
+        if 'LDA+L5HT' not in self['applied_lesions']:
+            self['applied_lesions'].append('LDA+L5HT')
+            self['name'] += ' +LDA+L5HT'
 
         self.original_GP = self['target']['GP']
         self.max_GP = self.original_GP * 0.75
@@ -1083,7 +1083,7 @@ class Healthy_combined_fit(Healthy):
         super(Healthy_combined_fit, self).__init__()
 
     def apply(self):
-        self['parameters_constraints']['L6OHDA___b_LC_SNc'] = [0, self.default_max_param]
+        self['parameters_constraints']['LDA___b_LC_SNcVTA'] = [0, self.default_max_param]
 
         self._invalidate_caches()
         self['constants'] = self.P
@@ -1100,41 +1100,41 @@ class Healthy_combined_fit(Healthy):
             'a_DRN_GP'          : self.P['a_DRN_GP'],
             'a_EXT_GP'          : self.P['a_EXT_GP'],
 
-            'a_SNc_StrD1'       : self.P['a_SNc_StrD1'],
+            'a_SNcVTA_StrD1'       : self.P['a_SNcVTA_StrD1'],
             'a_DRN_StrD1'       : self.P['a_DRN_StrD1'],
             'a_EXT_StrD1'       : self.P['a_EXT_StrD1'],
 
-            'a_SNc_StrD2'       : self.P['a_SNc_StrD2'],
+            'a_SNcVTA_StrD2'       : self.P['a_SNcVTA_StrD2'],
             'a_DRN_StrD2'       : self.P['a_DRN_StrD2'],
             'a_EXT_StrD2'       : self.P['a_EXT_StrD2'],
 
-            'a_DRN_SNc'         : self.P['a_DRN_SNc'],
-            'a_LC_SNc'          : self.P['a_LC_SNc'],
-            'b_LC_SNc'          : self.P['b_LC_SNc'],
-            'a_EXT_SNc'         : self.P['a_EXT_SNc'],
+            'a_DRN_SNcVTA'         : self.P['a_DRN_SNcVTA'],
+            'a_LC_SNcVTA'          : self.P['a_LC_SNcVTA'],
+            'b_LC_SNcVTA'          : self.P['b_LC_SNcVTA'],
+            'a_EXT_SNcVTA'         : self.P['a_EXT_SNcVTA'],
 
-            'a_SNc_DRN'         : self.P['a_SNc_DRN'],
+            'a_SNcVTA_DRN'         : self.P['a_SNcVTA_DRN'],
             'a_LC_DRN'          : self.P['a_LC_DRN'],
             'a_EXT_DRN'         : self.P['a_EXT_DRN'],
 
             'a_DRN_LC'          : self.P['a_DRN_LC'],
             'a_EXT_LC'          : self.P['a_EXT_LC'],
-            'a_SNc_LC'          : self.P['a_SNc_LC'],
+            'a_SNcVTA_LC'          : self.P['a_SNcVTA_LC'],
 
-            'L6OHDA___a_LC_SNc' : self.P.get('L6OHDA___a_LC_SNc', False) or self.P['a_LC_SNc'],
-            'L6OHDA___b_LC_SNc' : self.P.get('L6OHDA___b_LC_SNc', False) or self.P['b_LC_SNc'],
-            'L6OHDA___a_DRN_SNc': self.P.get('L6OHDA___a_DRN_SNc', False) or self.P['a_DRN_SNc'],
-            'L6OHDA___a_EXT_SNc': self.P.get('L6OHDA___a_EXT_SNc', False) or self.P['a_EXT_SNc'],
+            'LDA___a_LC_SNcVTA' : self.P.get('LDA___a_LC_SNcVTA', False) or self.P['a_LC_SNcVTA'],
+            'LDA___b_LC_SNcVTA' : self.P.get('LDA___b_LC_SNcVTA', False) or self.P['b_LC_SNcVTA'],
+            'LDA___a_DRN_SNcVTA': self.P.get('LDA___a_DRN_SNcVTA', False) or self.P['a_DRN_SNcVTA'],
+            'LDA___a_EXT_SNcVTA': self.P.get('LDA___a_EXT_SNcVTA', False) or self.P['a_EXT_SNcVTA'],
 
-            'LpCPA___a_LC_DRN'  : self.P.get('LpCPA___a_LC_DRN', False) or self.P['a_LC_DRN'],
-            'LpCPA___a_SNc_DRN' : self.P.get('LpCPA___a_SNc_DRN', False) or self.P['a_SNc_DRN'],
-            'LpCPA___a_EXT_DRN' : self.P.get('LpCPA___a_EXT_DRN', False) or self.P['a_EXT_DRN'],
+            'L5HT___a_LC_DRN'  : self.P.get('L5HT___a_LC_DRN', False) or self.P['a_LC_DRN'],
+            'L5HT___a_SNcVTA_DRN' : self.P.get('L5HT___a_SNcVTA_DRN', False) or self.P['a_SNcVTA_DRN'],
+            'L5HT___a_EXT_DRN' : self.P.get('L5HT___a_EXT_DRN', False) or self.P['a_EXT_DRN'],
 
-            'LDSP4___a_DRN_LC'  : self.P.get('LDSP4___a_DRN_LC', False) or self.P['a_DRN_LC'],
-            'LDSP4___a_EXT_LC'  : self.P.get('LDSP4___a_EXT_LC', False) or self.P['a_EXT_LC'],
+            'LNE___a_DRN_LC'  : self.P.get('LNE___a_DRN_LC', False) or self.P['a_DRN_LC'],
+            'LNE___a_EXT_LC'  : self.P.get('LNE___a_EXT_LC', False) or self.P['a_EXT_LC'],
 
         }
-        self['parameters_constraints']['b_LC_SNc'] = [0, self.default_max_param]
+        self['parameters_constraints']['b_LC_SNcVTA'] = [0, self.default_max_param]
 
         self._clean_constants()
         self._invalidate_caches()
@@ -1148,79 +1148,79 @@ class Healthy_combined_fit(Healthy):
         healthy._invalidate_caches()
         return healthy
 
-    def lesion_L6OHDA(self):
-        l6ohda = L6OHDA()
-        l6ohda.update(self.copy())
-        l6ohda.apply()
-        l6ohda['parameters']['a_LC_SNc'] = self.P['L6OHDA___a_LC_SNc']
-        l6ohda['parameters']['b_LC_SNc'] = self.P['L6OHDA___b_LC_SNc']
-        l6ohda['parameters']['a_DRN_SNc'] = self.P['L6OHDA___a_DRN_SNc']
-        l6ohda['parameters']['a_EXT_SNc'] = self.P['L6OHDA___a_EXT_SNc']
+    def lesion_LDA(self):
+        lLDA = LDA()
+        lLDA.update(self.copy())
+        lLDA.apply()
+        lLDA['parameters']['a_LC_SNcVTA'] = self.P['LDA___a_LC_SNcVTA']
+        lLDA['parameters']['b_LC_SNcVTA'] = self.P['LDA___b_LC_SNcVTA']
+        lLDA['parameters']['a_DRN_SNcVTA'] = self.P['LDA___a_DRN_SNcVTA']
+        lLDA['parameters']['a_EXT_SNcVTA'] = self.P['LDA___a_EXT_SNcVTA']
 
-        l6ohda._clean_constants()
-        l6ohda._invalidate_caches()
-        return l6ohda
+        lLDA._clean_constants()
+        lLDA._invalidate_caches()
+        return lLDA
 
-    def lesion_LpCPA(self):
-        lpcpa = LpCPA()
-        lpcpa.update(self.copy())
-        lpcpa.apply()
-        lpcpa['parameters']['a_LC_DRN'] = self.P['LpCPA___a_LC_DRN']
-        lpcpa['parameters']['a_SNc_DRN'] = self.P['LpCPA___a_SNc_DRN']
-        lpcpa['parameters']['a_EXT_DRN'] = self.P['LpCPA___a_EXT_DRN']
+    def lesion_L5HT(self):
+        l5HT = L5HT()
+        l5HT.update(self.copy())
+        l5HT.apply()
+        l5HT['parameters']['a_LC_DRN'] = self.P['L5HT___a_LC_DRN']
+        l5HT['parameters']['a_SNcVTA_DRN'] = self.P['L5HT___a_SNcVTA_DRN']
+        l5HT['parameters']['a_EXT_DRN'] = self.P['L5HT___a_EXT_DRN']
 
-        lpcpa._clean_constants()
-        lpcpa._invalidate_caches()
-        return lpcpa
+        l5HT._clean_constants()
+        l5HT._invalidate_caches()
+        return l5HT
 
-    def lesion_LDSP4(self):
-        ldsp4 = LDSP4()
-        ldsp4.update(self.copy())
-        ldsp4.apply()
-        ldsp4['parameters']['a_DRN_LC'] = self.P['LDSP4___a_DRN_LC']
-        ldsp4['parameters']['a_EXT_LC'] = self.P['LDSP4___a_EXT_LC']
+    def lesion_LNE(self):
+        lNE = LNE()
+        lNE.update(self.copy())
+        lNE.apply()
+        lNE['parameters']['a_DRN_LC'] = self.P['LNE___a_DRN_LC']
+        lNE['parameters']['a_EXT_LC'] = self.P['LNE___a_EXT_LC']
 
-        ldsp4._clean_constants()
-        ldsp4._invalidate_caches()
-        return ldsp4
+        lNE._clean_constants()
+        lNE._invalidate_caches()
+        return lNE
 
-    def lesion_L6OHDA_LpCPA(self):
-        lesioned = L6OHDA_LpCPA()
+    def lesion_LDA_L5HT(self):
+        lesioned = LDA_L5HT()
         lesioned.update(self.copy())
         lesioned.apply()
 
         lesioned['constants'] = lesioned.P
         lesioned['parameters'] = dict()
 
-        lesioned['constants']['a_LC_SNc'] = self.P['L6OHDA___a_LC_SNc']
-        lesioned['constants']['b_LC_SNc'] = self.P['L6OHDA___b_LC_SNc']
-        lesioned['constants']['a_DRN_SNc'] = self.P['L6OHDA___a_DRN_SNc']
-        lesioned['constants']['a_EXT_SNc'] = self.P['L6OHDA___a_EXT_SNc']
+        lesioned['constants']['a_LC_SNcVTA'] = self.P['LDA___a_LC_SNcVTA']
+        lesioned['constants']['b_LC_SNcVTA'] = self.P['LDA___b_LC_SNcVTA']
+        lesioned['constants']['a_DRN_SNcVTA'] = self.P['LDA___a_DRN_SNcVTA']
+        lesioned['constants']['a_EXT_SNcVTA'] = self.P['LDA___a_EXT_SNcVTA']
 
-        lesioned['constants']['a_LC_DRN'] = self.P['LpCPA___a_LC_DRN']
-        lesioned['constants']['a_SNc_DRN'] = self.P['LpCPA___a_SNc_DRN']
-        lesioned['constants']['a_EXT_DRN'] = self.P['LpCPA___a_EXT_DRN']
+        lesioned['constants']['a_LC_DRN'] = self.P['L5HT___a_LC_DRN']
+        lesioned['constants']['a_SNcVTA_DRN'] = self.P['L5HT___a_SNcVTA_DRN']
+        lesioned['constants']['a_EXT_DRN'] = self.P['L5HT___a_EXT_DRN']
 
         lesioned._clean_constants()
         lesioned._invalidate_caches()
 
         return lesioned
 
-    def lesion_L6OHDA_LDSP4(self):
-        lesioned = L6OHDA_LDSP4()
+    def lesion_LDA_LNE(self):
+        lesioned = LDA_LNE()
         lesioned.update(self.copy())
         lesioned.apply()
 
         lesioned['constants'] = lesioned.P
         lesioned['parameters'] = dict()
 
-        lesioned['constants']['a_LC_SNc'] = self.P['L6OHDA___a_LC_SNc']
-        lesioned['constants']['b_LC_SNc'] = self.P['L6OHDA___b_LC_SNc']
-        lesioned['constants']['a_DRN_SNc'] = self.P['L6OHDA___a_DRN_SNc']
-        lesioned['constants']['a_EXT_SNc'] = self.P['L6OHDA___a_EXT_SNc']
+        lesioned['constants']['a_LC_SNcVTA'] = self.P['LDA___a_LC_SNcVTA']
+        lesioned['constants']['b_LC_SNcVTA'] = self.P['LDA___b_LC_SNcVTA']
+        lesioned['constants']['a_DRN_SNcVTA'] = self.P['LDA___a_DRN_SNcVTA']
+        lesioned['constants']['a_EXT_SNcVTA'] = self.P['LDA___a_EXT_SNcVTA']
 
-        lesioned['constants']['a_DRN_LC'] = self.P['LDSP4___a_DRN_LC']
-        lesioned['constants']['a_EXT_LC'] = self.P['LDSP4___a_EXT_LC']
+        lesioned['constants']['a_DRN_LC'] = self.P['LNE___a_DRN_LC']
+        lesioned['constants']['a_EXT_LC'] = self.P['LNE___a_EXT_LC']
 
         lesioned._clean_constants()
         lesioned._invalidate_caches()
@@ -1228,39 +1228,39 @@ class Healthy_combined_fit(Healthy):
         return lesioned
 
     def _split_fitness_parameters_limits(self):
-        # Lesioned EXT must be smaller than healthy EXT
-        f_6OHDA = 1 / (1 + max(0, self.P['L6OHDA___a_EXT_SNc'] - self.P['a_EXT_SNc']))
-        f_pCPA = 1 / (1 + max(0, self.P['LpCPA___a_EXT_DRN'] - self.P['a_EXT_DRN']))
-        f_DSP4 = 1 / (1 + max(0, self.P['LDSP4___a_EXT_LC'] - self.P['a_EXT_LC']))
-        return [f_6OHDA, f_pCPA, f_DSP4]
+        # Lesioned EXT must be smaLer than healthy EXT
+        f_LDA = 1 / (1 + max(0, self.P['LDA___a_EXT_SNcVTA'] - self.P['a_EXT_SNcVTA']))
+        f_L5HT = 1 / (1 + max(0, self.P['L5HT___a_EXT_DRN'] - self.P['a_EXT_DRN']))
+        f_LNE = 1 / (1 + max(0, self.P['LNE___a_EXT_LC'] - self.P['a_EXT_LC']))
+        return [f_LDA, f_L5HT, f_LNE]
 
     def fitness(self, y0, t0, T):
         healthy = self.lesion_SHAM()
-        l6ohda = self.lesion_L6OHDA()
-        lpcpa = self.lesion_LpCPA()
-        ldsp4 = self.lesion_LDSP4()
+        LDA = self.lesion_LDA()
+        l5HT = self.lesion_L5HT()
+        lNE = self.lesion_LNE()
 
-        l6ohdapcpa = self.lesion_L6OHDA_LpCPA()
-        l6ohdadsp4 = self.lesion_L6OHDA_LDSP4()
+        LDA5HT = self.lesion_LDA_L5HT()
+        LDANE = self.lesion_LDA_LNE()
 
         fits = \
             healthy._split_fitness(healthy.target_as_y0(), t0, T) + \
-            l6ohda._split_fitness(healthy.target_as_y0(), t0, T) + \
-            l6ohda._split_fitness(l6ohda.target_as_y0(), t0, T) + \
-            lpcpa._split_fitness(healthy.target_as_y0(), t0, T) + \
-            lpcpa._split_fitness(lpcpa.target_as_y0(), t0, T) + \
-            ldsp4._split_fitness(healthy.target_as_y0(), t0, T) + \
-            ldsp4._split_fitness(ldsp4.target_as_y0(), t0, T) + \
-            l6ohdapcpa._split_fitness(healthy.target_as_y0(), t0, T) + \
-            l6ohdapcpa._split_fitness(l6ohda.target_as_y0(), t0, T) + \
-            l6ohdadsp4._split_fitness(healthy.target_as_y0(), t0, T) + \
-            l6ohdadsp4._split_fitness(l6ohda.target_as_y0(), t0, T) + \
+            LDA._split_fitness(healthy.target_as_y0(), t0, T) + \
+            LDA._split_fitness(LDA.target_as_y0(), t0, T) + \
+            l5HT._split_fitness(healthy.target_as_y0(), t0, T) + \
+            l5HT._split_fitness(l5HT.target_as_y0(), t0, T) + \
+            lNE._split_fitness(healthy.target_as_y0(), t0, T) + \
+            lNE._split_fitness(lNE.target_as_y0(), t0, T) + \
+            LDA5HT._split_fitness(healthy.target_as_y0(), t0, T) + \
+            LDA5HT._split_fitness(LDA.target_as_y0(), t0, T) + \
+            LDANE._split_fitness(healthy.target_as_y0(), t0, T) + \
+            LDANE._split_fitness(LDA.target_as_y0(), t0, T) + \
             [healthy.asymptotic_stability_score(),
-             l6ohda.asymptotic_stability_score(),
-             lpcpa.asymptotic_stability_score(),
-             ldsp4.asymptotic_stability_score(),
-             l6ohdapcpa.asymptotic_stability_score(),
-             l6ohdadsp4.asymptotic_stability_score(),
+             LDA.asymptotic_stability_score(),
+             l5HT.asymptotic_stability_score(),
+             lNE.asymptotic_stability_score(),
+             LDA5HT.asymptotic_stability_score(),
+             LDANE.asymptotic_stability_score(),
              ] + \
             self._split_fitness_parameters_limits()
 
@@ -1282,9 +1282,9 @@ class Cure(Healthy_combined_fit):
         lesioned.update(self._impose_target(super(Cure, self).lesion_SHAM()))
         return lesioned
 
-    def lesion_L6OHDA(self):
+    def lesion_LDA(self):
         lesioned = self.__class__()
-        lesioned.update(self._impose_target(super(Cure, self).lesion_L6OHDA()))
+        lesioned.update(self._impose_target(super(Cure, self).lesion_LDA()))
         return lesioned
 
     def _split_fitness(self, y0, t0, T):
@@ -1336,7 +1336,7 @@ class Cure_DRN(Cure):
         res = self.simulate(y0, t0, T)
         fits = list()
         equations = self['equations'].copy()
-        # equations.pop(equations.index('SNc'))
+        # equations.pop(equations.index('SNcVTA'))
         equations.pop(equations.index('DRN'))
         # equations.pop(equations.index('LC'))
         for eq in equations:
@@ -1382,7 +1382,7 @@ class Cure_LC(Cure):
         res = self.simulate(y0, t0, T)
         fits = list()
         equations = self['equations'].copy()
-        # equations.pop(equations.index('SNc'))
+        # equations.pop(equations.index('SNcVTA'))
         # equations.pop(equations.index('DRN'))
         equations.pop(equations.index('LC'))
         for eq in equations:
@@ -1434,7 +1434,7 @@ class Cure_combined(Cure):
         res = self.simulate(y0, t0, T)
         fits = list()
         equations = self['equations'].copy()
-        # equations.pop(equations.index('SNc'))
+        # equations.pop(equations.index('SNcVTA'))
         equations.pop(equations.index('DRN'))
         equations.pop(equations.index('LC'))
         for eq in equations:

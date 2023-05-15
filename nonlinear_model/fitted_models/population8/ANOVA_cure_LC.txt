@@ -1,5 +1,14 @@
-Groups: 0:SHAM 1:+6OHDA 2:+cure_DRN 3:+cure_LC 4:+cure_DRN+cure_LC
+Groups: 0:SHAM 1:+LDA 2:+cure_DRN 3:+cure_LC 4:+cure_DRN+cure_LC
+
+Normality tests:  Group   Statistic   Pvalue
+                   0      1.732e+00   4.207e-01
+                   1      6.914e+00   3.152e-02
+                   2      1.065e+01   4.879e-03
+                   3      3.433e+01   3.507e-08
+                   4      7.341e+01   1.147e-16
+
 ANOVA: F=23.099102931364268, p=4.1002566592601766e-16, dofB=4, dofW=235
+
 Tukey's HSD Pairwise Group Comparisons (95.0% Confidence Interval)
 Comparison  Statistic   p-value     Lower  CI   Upper CI
  (0 - 1)    5.186e-01   7.896e-01  -7.412e-01   1.778e+00

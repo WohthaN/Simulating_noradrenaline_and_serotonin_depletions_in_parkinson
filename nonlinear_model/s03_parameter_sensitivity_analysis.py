@@ -9,12 +9,19 @@ from CONF import *
 from models import *
 from plotting import *
 
-plt.rcParams['figure.figsize'] = (7, 7)
+# plt.rcParams['figure.figsize'] = (7, 7)
+figsize_square()
 
 N_JOBS = -1
 
 PLOT_LINTHRESH = False  # 1e-4
 BOXPLOT_LINTHRESH = False  # 1e-4
+
+
+def param_to_latex(p):
+    l,f, t = p.split('_')
+    l = l.replace('a', '\\alpha').replace('b', '\\beta')
+    return '$%s^{%s}_{%s}$' % (l,f,t)
 
 
 def mutation_state(model, mutation_scale, mutations_number, parameter_index, y0, t0, T, label='N/A'):
@@ -135,7 +142,7 @@ def main(fit=True, plot=False):
             sensitivity_index = G / float(V)
             sensitivity_matrix[i] = sensitivity_index
         sensitivity_matrix /= sensitivity_matrix.max()
-        sensitivity_df = pd.DataFrame(sensitivity_matrix, columns=model['equations'], index=states.keys())
+        sensitivity_df = pd.DataFrame(sensitivity_matrix, columns=model['equations'], index=[param_to_latex(p) for p in states.keys()])
 
         figure = plt.figure()
         sns.heatmap(sensitivity_df, annot=True, cmap='YlOrBr')

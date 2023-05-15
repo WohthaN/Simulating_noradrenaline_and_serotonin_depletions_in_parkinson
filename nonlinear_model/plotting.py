@@ -8,8 +8,15 @@ from joblib import Parallel, delayed
 from matplotlib import pyplot as plt
 from scipy import stats
 
-plt.rcParams['figure.figsize'] = (7, 7)
-plt.rc('font', size=12)
+
+def figsize_square():
+    plt.rcParams['figure.figsize'] = (6, 6)
+def figsize_horizontal():
+    plt.rcParams['figure.figsize'] = (9, 4)
+def figsize_vertical():
+    plt.rcParams['figure.figsize'] = (4, 11)
+
+plt.rc('font', size=11)
 SUBS = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 LINTHRESH = 10 ** -4
 
@@ -26,6 +33,19 @@ def pvalue_to_asterisks(pvalue):
     return ""
 
 
+def param_to_latex(p):
+    try:
+        prefix, p = p.split('___')
+    except ValueError:
+        prefix = False
+
+    l,f, t = p.split('_')
+    l = l.replace('a', '\\alpha').replace('b', '\\beta')
+    if not prefix:
+        return '$%s^{%s}_{%s}$' % (l,f,t)
+    else:
+        return '%s: $%s^{%s}_{%s}$' % (prefix, l, f, t)
+
 def print_title(msg, banner=None):
     if banner:
         pyfiglet.print_figlet(banner)
@@ -33,6 +53,7 @@ def print_title(msg, banner=None):
 
 
 def plot_population(model, population, y0, t0, T, plot_target=True, linthresh=LINTHRESH, max_models_in_plot=5):
+    figsize_square()
     boxplot_figure = plt.figure()
 
     boxplot_population_targets(population, linthresh=linthresh, figure=boxplot_figure)
@@ -50,6 +71,7 @@ def plot_population(model, population, y0, t0, T, plot_target=True, linthresh=LI
 
 
 def plot_model(model, y0, t0, T, figure=None, plot_target=True, linthresh=LINTHRESH):
+    figsize_square()
     if figure:
         plt.figure(figure)
     else:
@@ -92,6 +114,7 @@ def solutions_last_values(equations: list, solutions: list[dict]):
 
 
 def plot_parameters(models: list, t=0, figure=None, linthresh=LINTHRESH):
+    figsize_vertical()
     if figure:
         plt.figure(figure)
     else:
@@ -106,12 +129,14 @@ def plot_parameters(models: list, t=0, figure=None, linthresh=LINTHRESH):
         columns = [str(c) for c in columns]
         values = [model['constants'][k] for k in columns]
         values = [v(t) if callable(v) else v for v in values]
+        columns = [param_to_latex(p) for p in columns]
         plt.plot(values, columns, 'o', label=model['name'] + ' Const', color=colorsC[i])
 
         columns = sorted(list(model['parameters'].keys()))
         columns = [str(c) for c in columns]
         values = [model['parameters'][k] for k in columns]
         values = [v(t) if callable(v) else v for v in values]
+        columns = [param_to_latex(p) for p in columns]
         plt.plot(values, columns, 'v', label=model['name'] + ' Params', color=colorsP[i])
 
     if linthresh:
@@ -124,6 +149,7 @@ def plot_parameters(models: list, t=0, figure=None, linthresh=LINTHRESH):
 
 
 def boxplot_population_targets(population: list, figure=None, linthresh=LINTHRESH, scatterplot=False, color='grey'):
+    figsize_square()
     if figure:
         plt.figure(figure)
     else:
@@ -155,6 +181,7 @@ def boxplot_population_targets(population: list, figure=None, linthresh=LINTHRES
 
 
 def boxplot_population_last_value(population: list, figure=None, linthresh=LINTHRESH, t0=0, T=1):
+    figsize_square()
     if figure:
         plt.figure(figure)
     else:
@@ -187,8 +214,8 @@ def boxplot_population_last_value(population: list, figure=None, linthresh=LINTH
     if linthresh:
         plt.yscale('symlog', linthresh=linthresh, subs=SUBS)
 
-    plt.title('%s Values at T=%s (%s OK, %s NF)' % (
-        str(population[0]['name'].split(' ')[1:]), T, len(targets), len(missing_targets)))
+    plt.title('%s Values at T=%s (%s samples)' % (
+        str(population[0]['name'].split(' ')[1:]), T, len(targets)))
     plt.ylabel('average frequency (Hz)')
     return figure
 
@@ -204,6 +231,7 @@ def extract_column(data, column):
 
 def boxplot_populations_last_value_by_equation(populations: list[list], linthresh=LINTHRESH, t0=0, T=1,
                                                title_postfix=''):
+    figsize_square()
     equations = populations[0][0]['equations']
     populations_names = [''.join(p[0]['name'].split(' ')[1:]) or 'SHAM' for p in populations]
 
@@ -235,7 +263,7 @@ def boxplot_populations_last_value_by_equation(populations: list[list], linthres
             plt.yscale('symlog', linthresh=linthresh, subs=SUBS)
 
         ok_count = min([len(x) for x in data])
-        plt.title(eq + ' at T=%s ' % T + '($\geq$%s OK)' % ok_count + title_postfix)
+        plt.title(eq + ' at T=%s ' % T + '(%s samples)' % ok_count + title_postfix)
 
         plt.setp(figure.axes[0].get_xticklabels(), rotation=45, horizontalalignment='right')
         plt.ylabel('average frequency (Hz)')
@@ -245,6 +273,7 @@ def boxplot_populations_last_value_by_equation(populations: list[list], linthres
 
 def histplot_populations_last_value_by_equation(populations: list[list], linthresh=LINTHRESH, t0=0, T=1,
                                                 title_postfix=''):
+    figsize_square()
     equations = populations[0][0]['equations']
     populations_names = [''.join(p[0]['name'].split(' ')[1:]) or 'SHAM' for p in populations]
 
@@ -269,6 +298,8 @@ def histplot_populations_last_value_by_equation(populations: list[list], linthre
         stat = stats.tukey_hsd(*np.array(df).transpose())
         annotations = [pvalue_to_asterisks(v) for v in stat.pvalue[0]]
 
+        # container = plt.bar(means.index, means, yerr=sem, capsize=12, edgecolor='black', error_kw={'zorder': 0},
+        #                     color=plt.cm.binary(range(0, 255, int(255 / len(means))), alpha=100), zorder=10)
         container = plt.bar(means.index, means, yerr=sem, capsize=12, edgecolor='black',
                             color=plt.cm.binary(range(0, 128, int(128 / len(equations))), alpha=0), zorder=2)
         plt.bar_label(container, annotations, size=18)
@@ -287,7 +318,7 @@ def histplot_populations_last_value_by_equation(populations: list[list], linthre
             plt.yscale('symlog', linthresh=linthresh, subs=SUBS)
 
         ok_count = min([len(x) for x in data])
-        plt.title(eq + ' at T=%s ' % T + ' ($\geq$%s OK) ' % ok_count + title_postfix)
+        plt.title(eq + ' at T=%s ' % T + ' (%s samples) ' % ok_count + title_postfix)
         plt.setp(figure.axes[0].get_xticklabels(), rotation=45, horizontalalignment='right')
         plt.ylabel('average frequency (Hz)')
         figures[str(eq)] = figure
@@ -295,6 +326,7 @@ def histplot_populations_last_value_by_equation(populations: list[list], linthre
 
 
 def boxplot_population_parameters(population: list, linthresh=LINTHRESH, figure=None, color=None, alt_title=None):
+    figsize_horizontal()
     if figure:
         plt.figure(figure)
     else:
@@ -302,6 +334,7 @@ def boxplot_population_parameters(population: list, linthresh=LINTHRESH, figure=
 
     plt.grid(which='both')
     columns = population[0]._optimize_get_state_keys()
+    columns = [param_to_latex(p) for p in columns]
     data = np.array([m._optimize_get_state() for m in population])
     df = pd.DataFrame(columns=columns, data=data)
     fp = {'markeredgecolor': color}
@@ -320,13 +353,24 @@ def boxplot_population_parameters(population: list, linthresh=LINTHRESH, figure=
 
 
 def histplot_population_parameters(populations: list[list], linthresh=LINTHRESH, title_postfix=''):
+    figsize_square()
     figures = dict()
     columns = populations[0][0]._optimize_get_state_keys()
     populations_names = [''.join(p[0]['name'].split(' ')[1:]) or 'SHAM' for p in populations]
     for column in columns:
         figure = plt.figure()
         plt.grid(which='both')
-        data = [[x.P[column] for x in p] for p in populations]
+        try:
+            data = [[x.P[column] for x in p] for p in populations]
+        except KeyError:
+            for p in populations:
+                for x in p:
+                    try:
+                        x.P[column]
+                    except:
+                        print(x)
+                        raise
+            raise
         df = pd.DataFrame(data)
         df = df.transpose()
         df.columns = populations_names
@@ -358,7 +402,7 @@ def histplot_population_parameters(populations: list[list], linthresh=LINTHRESH,
             plt.yscale('symlog', linthresh=linthresh, subs=SUBS)
 
         ok_count = min([len(x) for x in data])
-        plt.title(column + ' ($\geq$%s OK) ' % ok_count + title_postfix)
+        plt.title(param_to_latex(column) + ' (%s samples) ' % ok_count + title_postfix)
         plt.xticks(rotation='vertical')
 
         figures[str(column)] = figure
@@ -366,6 +410,7 @@ def histplot_population_parameters(populations: list[list], linthresh=LINTHRESH,
 
 
 def plot_max_eigenvalue_distribution(population: list, figure=None, title_label=''):
+    figsize_square()
     if figure:
         plt.figure(figure)
     else:
@@ -382,6 +427,7 @@ def plot_max_eigenvalue_distribution(population: list, figure=None, title_label=
 
 
 def plot_population_fitness_distribution(population: list, figure=None, title_label=''):
+    figsize_square()
     if figure:
         plt.figure(figure)
     else:
@@ -397,6 +443,7 @@ def plot_population_fitness_distribution(population: list, figure=None, title_la
 
 
 def plot_population_fitness_delta_distribution(population: list, figure=None, title_label=''):
+    figsize_square()
     if figure:
         plt.figure(figure)
     else:
@@ -413,6 +460,7 @@ def plot_population_fitness_delta_distribution(population: list, figure=None, ti
 
 
 def plot_population_fitness(population: list, figure=None, color='blue'):
+    figsize_square()
     if figure:
         plt.figure(figure)
     else:
@@ -428,6 +476,7 @@ def plot_population_fitness(population: list, figure=None, color='blue'):
 
 
 def plot_fitness(fitness_history: list, model_name, figure=None, base='generations'):
+    figsize_square()
     if figure:
         plt.figure(figure)
         if len(figure.axes) < 2:

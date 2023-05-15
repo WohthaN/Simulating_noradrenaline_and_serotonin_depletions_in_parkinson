@@ -9,11 +9,11 @@ digraph G {
     #layout=patchwork;
 
   {
-    node [shape=box, style=rounded ];
+    node [shape=box, style=rounded, width=1.2 ];
     GP [fixedsize=true];
     StrD1 [fixedsize=shape];
     StrD2 [fixedsize=shape];
-    SNc [fixedsize=shape];
+    SNc [fixedsize=shape, label="SNc/VTA"];
     DRN [fixedsize=shape];
     LC [fixedsize=shape];
   }
@@ -24,10 +24,10 @@ digraph G {
       SHT [label="5-HT", color=orange];
   }
   {
-      node [shape=hexagon,fixedsize=true,width=1];
-      OHDA [label="6OHDA", color=darkorchid1];
-      pCPA [color=darkorchid1];
-      DSP4 [label="DSP-4", color=darkorchid1];
+      node [shape=hexagon,fixedsize=true,width=1.3];
+      OHDA [label="SNc/VTA\nlesion", color=darkorchid1];
+      pCPA [color=darkorchid1, label="DRN\nlesion"];
+      DSP4 [label="LC\nlesion", color=darkorchid1];
   }
   {
     node [shape=egg,fixedsize=true,width=1.2, color=grey];
