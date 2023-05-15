@@ -38,7 +38,7 @@ def main(fit=True, plot=False):
     reject_threshold = 1 - 2e-8
     individuals = [ind for ind in individuals if ind['fitness_history'][-1][1] > reject_threshold]
     for i in individuals:
-        i['parameters'].update(i.lesion_L6OHDA()['parameters'])
+        i['parameters'].update(i.lesion_LLDA()['parameters'])
     individuals = [i.lesion_SHAM() for i in individuals]
 
     t0 = 0
@@ -142,7 +142,7 @@ def main(fit=True, plot=False):
 
         figure = plt.figure()
         sns.heatmap(sensitivity_df, annot=True, cmap='YlOrBr')
-        figure.savefig(os.path.join(POPULATION_BASE_PATH, 'sensitivity_analysis_matrix_6OHDA.png'), dpi=FIG_DPI,
+        figure.savefig(os.path.join(POPULATION_BASE_PATH, 'sensitivity_analysis_matrix_LDA.png'), dpi=FIG_DPI,
                        bbox_inches='tight')
 
 

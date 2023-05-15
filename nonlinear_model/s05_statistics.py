@@ -40,7 +40,7 @@ def main(fit=True, plot=False):
         individuals = [Healthy_combined_fit.load(POPULATION_BASE_PATH + '%s' % f) for f in files]
         reject_threshold = 1 - 2e-8
         individuals = [ind for ind in individuals if ind['fitness_history'][-1][1] > reject_threshold]
-        individuals_6OHDA = [ind._impose_target(ind.lesion_L6OHDA()) for ind in individuals]
+        individuals_LDA = [ind._impose_target(ind.lesion_LLDA()) for ind in individuals]
 
         files = sorted(filter(lambda x: x.startswith('S_'), os.listdir(POPULATION_BASE_PATH___CURE_DRN + '')))
         individuals_cure_DRN = [Cure_DRN.load(POPULATION_BASE_PATH___CURE_DRN + '/%s' % f) for f in files]
@@ -66,23 +66,23 @@ def main(fit=True, plot=False):
 
         populations = list()
 
-        lesions_list = ['lesion_SHAM', 'lesion_L6OHDA', 'lesion_LpCPA', 'lesion_LDSP4',
-                        'lesion_L6OHDA_LpCPA',
-                        'lesion_L6OHDA_LDSP4']
+        lesions_list = ['lesion_SHAM', 'lesion_LLDA', 'lesion_LL5HT', 'lesion_LLNE',
+                        'lesion_LLDA_LL5HT',
+                        'lesion_LLDA_LLNE']
         for lesion in lesions_list:
             populations.append([i.__getattribute__(lesion)() for i in individuals])
 
         populations = slice_populations(populations)
-        populations_pCPA = [populations[0], populations[1], populations[2], populations[4]]
-        ll_pCPA = ['lesion_SHAM', 'lesion_L6OHDA', 'lesion_LpCPA',
-                   'lesion_L6OHDA_LpCPA',
+        populations_L5HT = [populations[0], populations[1], populations[2], populations[4]]
+        ll_L5HT = ['lesion_SHAM', 'lesion_LLDA', 'lesion_LL5HT',
+                   'lesion_LLDA_LL5HT',
                    ]
-        ll_DSP4 = ['lesion_SHAM', 'lesion_L6OHDA', 'lesion_LDSP4',
-                   'lesion_L6OHDA_LpCPA',
+        ll_LNE = ['lesion_SHAM', 'lesion_LLDA', 'lesion_LLNE',
+                   'lesion_LLDA_LL5HT',
                    ]
-        populations_DSP4 = [populations[0], populations[1], populations[3], populations[5]]
+        populations_LNE = [populations[0], populations[1], populations[3], populations[5]]
 
-        for pop, ll in [(populations, lesions_list), (populations_pCPA, ll_pCPA), (populations_DSP4, ll_DSP4)]:
+        for pop, ll in [(populations, lesions_list), (populations_L5HT, ll_L5HT), (populations_LNE, ll_LNE)]:
             for eq in pop[0][0]['equations']:
                 eq_data = np.array(
                         [np.array(
@@ -104,13 +104,13 @@ def main(fit=True, plot=False):
                 print(eq + ':\n')
                 print(text)
 
-        populations = slice_populations([individuals, individuals_6OHDA,
+        populations = slice_populations([individuals, individuals_LDA,
                                          [i.cure_DRN() for i in individuals_cure_DRN],
                                          [i.cure_LC() for i in individuals_cure_LC],
                                          [i.cure_DRN_LC() for i in individuals_cure_combined],
                                          ])
 
-        groups = ['SHAM', BL['lesion_L6OHDA'], '+cure_DRN',
+        groups = ['SHAM', BL['lesion_LLDA'], '+cure_DRN',
                   '+cure_LC', '+cure_DRN+cure_LC']
 
         sim_data = [Parallel(n_jobs=-1)(delayed(m.simulate)(m.target_as_y0(), t0, T) for m in p) for p in

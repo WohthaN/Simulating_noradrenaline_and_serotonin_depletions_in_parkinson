@@ -32,8 +32,8 @@ def main(fit=True, plot=False):
         plot_model(model, model.target_as_y0(), t0, T,
                    linthresh=PLOT_LINTHRESH)
 
-        lesions = [model.lesion_L6OHDA(), model.lesion_LDSP4(), model.lesion_LpCPA(),
-                   model.lesion_L6OHDA_LDSP4(), model.lesion_L6OHDA_LpCPA()]
+        lesions = [model.lesion_LLDA(), model.lesion_LLNE(), model.lesion_LL5HT(),
+                   model.lesion_LLDA_LLNE(), model.lesion_LLDA_LL5HT()]
 
         for model in lesions:
             plot_parameters([model, model], linthresh=BOXPLOT_LINTHRESH)
