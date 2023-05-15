@@ -326,7 +326,17 @@ def histplot_population_parameters(populations: list[list], linthresh=LINTHRESH,
     for column in columns:
         figure = plt.figure()
         plt.grid(which='both')
-        data = [[x.P[column] for x in p] for p in populations]
+        try:
+            data = [[x.P[column] for x in p] for p in populations]
+        except KeyError:
+            for p in populations:
+                for x in p:
+                    try:
+                        x.P[column]
+                    except:
+                        print(x)
+                        raise
+            raise
         df = pd.DataFrame(data)
         df = df.transpose()
         df.columns = populations_names
