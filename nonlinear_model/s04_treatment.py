@@ -348,7 +348,7 @@ def main(fit=True, plot=False):
 
         figure = boxplot_population_parameters(cured, linthresh=BOXPLOT_LINTHRESH, color='green')
         figure = boxplot_population_parameters(not_cured, linthresh=BOXPLOT_LINTHRESH, color='red', figure=figure,
-                                               alt_title='Cured vs Not-Cured (%s - %s)' % (
+                                               alt_title='Responder vs Non-Responder (%s - %s)' % (
                                                    len(cured), len(not_cured)))
         figure.savefig(os.path.join(POPULATION_BASE_PATH,
                                     'cure_population_parameters_Cured_vs_NotCured.png'),
@@ -405,7 +405,7 @@ def main(fit=True, plot=False):
         plt.ylabel('$\Delta\\alpha^{EXT}_{DRN}$')
         plt.xscale('symlog', linthresh=1e-1, subs=SUBS)
         plt.yscale('symlog', linthresh=1e-8, subs=SUBS)
-        plt.grid(which='both')
+        make_grid()
         figure.savefig(os.path.join(POPULATION_BASE_PATH,
                                     'cure_combined_relativedelta_parameters.png'),
                        dpi=FIG_DPI,

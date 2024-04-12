@@ -14,12 +14,16 @@ def figsize_square():
 def figsize_horizontal():
     plt.rcParams['figure.figsize'] = (9, 4)
 def figsize_vertical():
-    plt.rcParams['figure.figsize'] = (4, 11)
+    plt.rcParams['figure.figsize'] = (4, 9)
 
 plt.rc('font', size=11)
 SUBS = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 LINTHRESH = 10 ** -4
 
+
+def make_grid():
+    plt.grid(False)
+    plt.grid(which='both', alpha=0.33, linewidth=1, zorder=0)
 
 def pvalue_to_asterisks(pvalue):
     if pvalue <= 0.0001:
@@ -56,11 +60,11 @@ def plot_population(model, population, y0, t0, T, plot_target=True, linthresh=LI
     figsize_square()
     boxplot_figure = plt.figure()
 
-    boxplot_population_targets(population, linthresh=linthresh, figure=boxplot_figure)
+    boxplot_population_targets(population, linthresh=linthresh, figure=boxplot_figure, scatterplot=True, color='grey', scatterplot_color='grey')
     boxplot_population_last_value(population, figure=boxplot_figure, linthresh=linthresh, t0=t0, T=T)
 
     plot_figure = plt.figure()
-    plt.grid(which='both')
+    make_grid()
 
     step = max(1, int(len(population) / max_models_in_plot))
 
@@ -76,7 +80,7 @@ def plot_model(model, y0, t0, T, figure=None, plot_target=True, linthresh=LINTHR
         plt.figure(figure)
     else:
         figure = plt.figure()
-        plt.grid(which='both')
+        make_grid()
 
     solution = model.simulate(y0, t0, T)
     cmap = plt.get_cmap('Paired')
@@ -119,7 +123,7 @@ def plot_parameters(models: list, t=0, figure=None, linthresh=LINTHRESH):
         plt.figure(figure)
     else:
         figure = plt.figure()
-    plt.grid(which='both')
+    make_grid()
 
     colorsP = [x['color'] for x in plt.cycler(color=plt.cm.get_cmap('Set1').colors)]
     colorsC = [x['color'] for x in plt.cycler(color=plt.cm.get_cmap('Accent').colors)]
@@ -148,27 +152,27 @@ def plot_parameters(models: list, t=0, figure=None, linthresh=LINTHRESH):
     return figure
 
 
-def boxplot_population_targets(population: list, figure=None, linthresh=LINTHRESH, scatterplot=False, color='grey'):
+def boxplot_population_targets(population: list, figure=None, linthresh=LINTHRESH, scatterplot=False, color='grey', scatterplot_color='grey'):
     figsize_square()
     if figure:
         plt.figure(figure)
     else:
         figure = plt.figure()
-    plt.grid(which='both')
+    make_grid()
     equations = population[0]['equations']
     targets = np.array([[m['target'][x] for m in population] for x in equations]).transpose()
     targets_df = pd.DataFrame(columns=equations, data=targets)
 
     if scatterplot:
-        targets_df.boxplot()
+        targets_df.boxplot(color=color)
         for i, col in enumerate(equations):
             random.seed(1)
             points = targets_df[col]
             x = i + 1
-            width = 0.125
+            width = 0.08
             L = x - width
             R = x + width
-            plt.plot([random_uniform(L, R) for _ in range(len(points))], points, 'o', alpha=0.25, color='orange',
+            plt.plot([random_uniform(L, R) for _ in range(len(points))], points, 'o', alpha=0.25, color=scatterplot_color,
                      zorder=0)
     else:
         targets_df.boxplot(color=color)
@@ -186,7 +190,7 @@ def boxplot_population_last_value(population: list, figure=None, linthresh=LINTH
         plt.figure(figure)
     else:
         figure = plt.figure()
-    plt.grid(which='both')
+    make_grid()
     equations = population[0]['equations']
 
     data = Parallel(n_jobs=-1)(delayed(m.simulate)(m.target_as_y0(), t0, T) for m in population)
@@ -200,7 +204,7 @@ def boxplot_population_last_value(population: list, figure=None, linthresh=LINTH
             random.seed(1)
             points = targets_df[col]
             x = i + 1
-            width = 0.125
+            width = 0.08
             L = x - width
             R = x + width
             plt.plot([random_uniform(L, R) for _ in range(len(points))], points, 'o', alpha=0.25, color='orange',
@@ -242,7 +246,7 @@ def boxplot_populations_last_value_by_equation(populations: list[list], linthres
 
     for idx, eq in enumerate(equations):
         figure = plt.figure()
-        plt.grid(which='both')
+        make_grid()
 
         df = extract_column(data, idx)
         df.columns = populations_names
@@ -253,7 +257,7 @@ def boxplot_populations_last_value_by_equation(populations: list[list], linthres
             random.seed(1)
             points = df[col]
             x = i + 1
-            width = 0.125
+            width = 0.08
             L = x - width
             R = x + width
             plt.plot([random_uniform(L, R) for _ in range(len(points))], points, 'o', alpha=0.25, color='orange',
@@ -284,7 +288,7 @@ def histplot_populations_last_value_by_equation(populations: list[list], linthre
 
     for idx, eq in enumerate(equations):
         figure = plt.figure()
-        plt.grid(which='both')
+        # make_grid()
 
         df = extract_column(data, idx)
         df.columns = populations_names
@@ -300,19 +304,26 @@ def histplot_populations_last_value_by_equation(populations: list[list], linthre
 
         # container = plt.bar(means.index, means, yerr=sem, capsize=12, edgecolor='black', error_kw={'zorder': 0},
         #                     color=plt.cm.binary(range(0, 255, int(255 / len(means))), alpha=100), zorder=10)
+        
+        bars_content = plt.bar(means.index, means, color='teal', edgecolor='black',
+                            #color=plt.cm.binary(range(0, 128, int(128 / len(equations))), alpha=0), 
+                            alpha=1,
+                            zorder=1)
         container = plt.bar(means.index, means, yerr=sem, capsize=12, edgecolor='black',
-                            color=plt.cm.binary(range(0, 128, int(128 / len(equations))), alpha=0), zorder=2)
+                            #color=plt.cm.binary(range(0, 128, int(128 / len(equations))), alpha=0), 
+                            alpha=0,
+                            zorder=3)
         plt.bar_label(container, annotations, size=18)
 
         for idx, bar in enumerate(container):
             random.seed(1)
             x = bar.get_x()
             width = bar.get_width() / 2.
-            L = x + width - width / 2
-            R = x + width + width / 2
+            L = x + width - width / 3.
+            R = x + width + width / 3.
             points = df[populations_names[idx]]
-            plt.plot([random_uniform(L, R) for _ in range(len(points))], points, 'o', alpha=0.25, color='orange',
-                     zorder=1)
+            plt.plot([random_uniform(L, R) for _ in range(len(points))], points, 'o', alpha=0.2, color='orange',
+                     zorder=2)
 
         if linthresh:
             plt.yscale('symlog', linthresh=linthresh, subs=SUBS)
@@ -332,7 +343,7 @@ def boxplot_population_parameters(population: list, linthresh=LINTHRESH, figure=
     else:
         figure = plt.figure()
 
-    plt.grid(which='both')
+    make_grid()
     columns = population[0]._optimize_get_state_keys()
     columns = [param_to_latex(p) for p in columns]
     data = np.array([m._optimize_get_state() for m in population])
@@ -359,7 +370,7 @@ def histplot_population_parameters(populations: list[list], linthresh=LINTHRESH,
     populations_names = [''.join(p[0]['name'].split(' ')[1:]) or 'SHAM' for p in populations]
     for column in columns:
         figure = plt.figure()
-        plt.grid(which='both')
+        # make_grid()
         try:
             data = [[x.P[column] for x in p] for p in populations]
         except KeyError:
@@ -383,20 +394,26 @@ def histplot_population_parameters(populations: list[list], linthresh=LINTHRESH,
 
         stat = stats.tukey_hsd(*np.array(df).transpose())
         annotations = [pvalue_to_asterisks(v) for v in stat.pvalue[0]]
-
+        
+        bars_container = plt.bar(means.index, means, color='teal', edgecolor='black',
+                            #color=plt.cm.binary(range(0, 128, int(128 / len(populations))), alpha=0), 
+                            alpha=1,
+                            zorder=1)
         container = plt.bar(means.index, means, yerr=sem, capsize=12, edgecolor='black',
-                            color=plt.cm.binary(range(0, 128, int(128 / len(populations))), alpha=0), zorder=2)
+                            #color=plt.cm.binary(range(0, 128, int(128 / len(populations))), alpha=0), 
+                            alpha=0,
+                            zorder=3)
         plt.bar_label(container, annotations, size=18)
 
         for idx, bar in enumerate(container):
             random.seed(1)
             x = bar.get_x()
             width = bar.get_width() / 2.
-            L = x + width - width / 2
-            R = x + width + width / 2
+            L = x + width - width / 3.
+            R = x + width + width / 3.
             points = df[populations_names[idx]]
-            plt.plot([random_uniform(L, R) for _ in range(len(points))], points, 'o', alpha=0.25, color='orange',
-                     zorder=1)
+            plt.plot([random_uniform(L, R) for _ in range(len(points))], points, 'o', alpha=0.2, color='orange',
+                     zorder=2)
 
         if linthresh:
             plt.yscale('symlog', linthresh=linthresh, subs=SUBS)
@@ -417,7 +434,7 @@ def plot_max_eigenvalue_distribution(population: list, figure=None, title_label=
         figure = plt.figure()
     eigs = [e for pop in population for e in pop._eigenvalues_real_part()]
 
-    plt.grid(which='both')
+    make_grid()
     plt.hist(eigs, bins=100)  # , range=[0, 1])
     plt.title('%sPopulation eigenvalues distribution (%s)' % (title_label, str(len(population))))
     plt.ylabel('count')
@@ -433,7 +450,7 @@ def plot_population_fitness_distribution(population: list, figure=None, title_la
     else:
         figure = plt.figure()
 
-    plt.grid(which='both')
+    make_grid()
     fits = -np.log10(1 - np.array([i['fitness_history'][-1][1] for i in population]))
     plt.hist(fits, bins=int((max(fits) + 2) * 10))  # , range=[0, 1])
     plt.title('%sPopulation fitness distribution (%s)' % (title_label, str(len(population))))
@@ -449,7 +466,7 @@ def plot_population_fitness_delta_distribution(population: list, figure=None, ti
     else:
         figure = plt.figure()
 
-    plt.grid(which='both')
+    make_grid()
     fits = np.array([i['fitness_history'][-1][1] for i in population]) - np.array(
             [i['fitness_history'][0][1] for i in population])
     plt.hist(fits, bins=int((max(fits) + 2) * 10))  # , range=[0, 1])
@@ -471,7 +488,7 @@ def plot_population_fitness(population: list, figure=None, color='blue'):
     plt.setp(figure.axes[0].get_xticklabels(), rotation=90, horizontalalignment='right')
     # plt.setp(figure.axes[0].get_yticklabels(), rotation=90, horizontalalignment='right')
     plt.title('Population fitness by individual')
-    plt.grid(which='both')
+    make_grid()
     return figure
 
 
@@ -501,7 +518,7 @@ def plot_fitness(fitness_history: list, model_name, figure=None, base='generatio
     plt.sca(figure.axes[1])
     plt.plot(x, -np.log10(1 - history[1]), label='9s', color='red')
     # plt.yscale('log', subs=SUBS,)
-    plt.grid(which='both')
+    make_grid()
     plt.title(model_name + ' Fitness (blue) =  $1-10^{-y}$ (red) ' + '[over ' + base + ']')
 
     return figure

@@ -57,14 +57,14 @@ def main(fit=True, plot=False):
                     (people_in_population, mutation_scale), 'STEP 02')
 
         figure = plt.figure()
-        plt.grid(which='both')
+        make_grid()
         for i in individuals:
             plot_fitness(i['fitness_history'], 'Combined', figure=figure, base='generations')
         figure.savefig(os.path.join(POPULATION_BASE_PATH, 'population_fitness_generations.png'), dpi=FIG_DPI,
                        bbox_inches='tight')
 
         figure = plt.figure()
-        plt.grid(which='both')
+        make_grid()
         for i in individuals:
             plot_fitness(i['fitness_history'], 'Combined', figure=figure, base='time')
         figure.savefig(os.path.join(POPULATION_BASE_PATH, 'population_fitness_time.png'), dpi=FIG_DPI,
@@ -93,7 +93,7 @@ def main(fit=True, plot=False):
         individuals = [ind for ind in individuals if ind['fitness_history'][-1][1] > reject_threshold]
 
         figure = plt.figure()
-        plt.grid(which='both')
+        make_grid()
         # plot_population_fitness(individuals, figure=figure, color='blue')
         plot_population_fitness(rejects, figure=figure, color='red')
 
@@ -205,14 +205,14 @@ def main(fit=True, plot=False):
             f.write('%.2f' % (average_time / 3600.))
 
         figure = plt.figure()
-        plt.grid(which='both')
+        make_grid()
         for i in individuals[::int(len(individuals) / 10)]:
             plot_fitness(i['fitness_history'], 'Combined', figure=figure, base='generations')
         figure.savefig(os.path.join(POPULATION_BASE_PATH, 'population_fitness_generations_subsample.png'), dpi=FIG_DPI,
                        bbox_inches='tight')
 
         figure = plt.figure()
-        plt.grid(which='both')
+        make_grid()
         for i in individuals[::int(len(individuals) / 10)]:
             plot_fitness(i['fitness_history'], 'Combined', figure=figure, base='time')
         figure.savefig(os.path.join(POPULATION_BASE_PATH, 'population_fitness_time_subsample.png'), dpi=FIG_DPI,
